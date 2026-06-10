@@ -1,0 +1,74 @@
+name: CI
+
+# Full verification pipeline: install → prisma → seed → build → lint →
+# typecheck → test (unit + integration + E2E, all with mocked LLM).
+# No live LLM calls — FakeProvider is injected (Non-Negotiable Rule #3).
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: openoffice
+          POSTGRES_PASSWORD: openoffice
+          POSTGRES_DB: openoffice
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U openoffice"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://openoffice:openoffice@localhost:5432/openoffice
+      AUTH_SECRET: ci-test-secret-not-for-production
+      # Intentionally NO ANTHROPIC_API_KEY — tests must use FakeProvider.
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+
+      - name: Apply database migrations
+        run: pnpm exec prisma migrate deploy
+
+      - name: Seed database (templates + demo office)
+        run: pnpm --filter @repo/db seed
+
+      - name: Build
+        run: pnpm build
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test (unit + integration + E2E, mocked LLM)
+        run: pnpm test

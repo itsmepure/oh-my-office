@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Terminal theme — FLAT + BOXY. True terminal aesthetic:
+ *  - sharp corners everywhere (no border-radius)
+ *  - flat solid fills (no gradients, no glow, no drop shadows)
+ *  - depth comes ONLY from 1px borders and surface color steps
+ *  - monospace-leaning, letter-spaced uppercase labels
+ */
+:root {
+  --bg: #0b0d14;          /* page background — flat near-black navy */
+  --surface: #11141f;     /* panels / cards */
+  --surface-2: #181c2b;   /* nested rows / inputs / hover */
+  --border: #2a3050;      /* 1px borders */
+  --border-strong: #3a4268;
+  --accent: #e0a33e;      /* amber — primary accent */
+  --accent-bright: #f5bb4d;
+  --accent-dim: #b9842f;
+  --text: #eceef6;        /* primary text */
+  --text-muted: #9aa1bd;  /* secondary text */
+  --text-faint: #6b7193;  /* tertiary / captions */
+  --success: #46cfa6;
+  --danger: #ec6a59;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/*
+ * Flat panel — solid surface fill + 1px border. NO gradient, NO shadow,
+ * NO glow, NO radius. The terminal box. Combine with Tailwind for padding.
+ */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+.card-hover {
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.card-hover:hover {
+  border-color: var(--accent);
+}
+
+/* Uppercase letter-spaced label — the repeating rhythm element. */
+.eyebrow {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* Thin square scrollbars to match the terminal aesthetic. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
