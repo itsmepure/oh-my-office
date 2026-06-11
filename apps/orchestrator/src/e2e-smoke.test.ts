@@ -56,7 +56,11 @@ describe('E2E smoke: register → office → custom agent → run task (mocked L
       await prisma.office.deleteMany({ where: { id: officeId } });
     }
     if (customAgentId) await prisma.agent.deleteMany({ where: { id: customAgentId } });
-    await prisma.user.deleteMany({ where: { id: { in: [ownerId, intruderId].filter(Boolean) } } });
+    const userIds = [ownerId, intruderId].filter(Boolean);
+    await prisma.creditLedger.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.creditBalance.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.subscription.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
     await prisma.$disconnect();
   });
 

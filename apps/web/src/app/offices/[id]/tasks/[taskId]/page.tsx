@@ -20,7 +20,7 @@ function statusBadgeClass(status: string): string {
     case 'running':
       return 'bg-accent/10 text-accent';
     case 'queued':
-      return 'bg-amber-100 text-amber-700';
+      return 'bg-accent/10 text-accent-dim';
     default:
       return 'bg-surface-2 text-content-muted';
   }
@@ -122,8 +122,16 @@ export default async function TaskDetailPage({
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-mono text-sm font-medium text-content">{a.name}</span>
-                    <span className="shrink-0 rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase text-content-muted">
-                      {a.type}
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase text-content-muted">
+                        {a.type}
+                      </span>
+                      <a
+                        href={`/api/tasks/${taskId}/artifacts/${a.id}/download`}
+                        className="cursor-pointer border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-content-muted transition hover:border-accent/50 hover:text-content"
+                      >
+                        Download
+                      </a>
                     </span>
                   </div>
                   {a.content ? (

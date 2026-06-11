@@ -16,9 +16,11 @@ interface Props {
   };
   /** Agent id for PATCH on edit (optional — omit for create). */
   agentId?: string;
+  /** Whether the user's plan allows knowledge docs (Pro+). Default true. */
+  canUseKnowledge?: boolean;
 }
 
-export function AgentBuilderForm({ initial, agentId }: Props) {
+export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: Props) {
   const isEdit = !!agentId;
   const router = useRouter();
 
@@ -193,8 +195,14 @@ export function AgentBuilderForm({ initial, agentId }: Props) {
         </label>
       </div>
 
-      {/* Knowledge docs (create only) */}
-      {!isEdit && (
+      {/* Knowledge docs (create only, Pro feature) */}
+      {!isEdit && !canUseKnowledge && (
+        <div className="rounded-md border border-accent/40 bg-accent/10 p-3 text-xs text-accent">
+          Knowledge docs are a Pro feature.{' '}
+          <a href="/settings" className="underline">Upgrade</a> to give agents reference material.
+        </div>
+      )}
+      {!isEdit && canUseKnowledge && (
         <fieldset>
           <legend className="text-sm font-medium text-content">
             Knowledge docs (optional, max 10)

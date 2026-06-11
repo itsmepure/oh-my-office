@@ -3,7 +3,7 @@
 
 export const AGENTS_PACKAGE_VERSION = '0.2.0';
 
-export { FakeProvider, AnthropicProvider } from './provider.js';
+export { FakeProvider, AnthropicProvider, OpenAICompatibleProvider } from './provider.js';
 export type { Provider, GenerateParams, GenerateResult, ToolCall, ToolDefinition } from './provider.js';
 
 export { createToolRegistry, guardPath, safeReadFile, safeWriteFile, safeListFiles, PathEscapeError } from './tools.js';

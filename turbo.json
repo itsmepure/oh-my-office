@@ -20,7 +20,8 @@
       "dependsOn": ["^build", "@repo/web#build"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "passThroughEnv": ["DATABASE_URL", "AUTH_SECRET", "KEY_ENCRYPTION_SECRET", "ANTHROPIC_API_KEY", "LLM_API_KEY", "LLM_MODEL", "LLM_BASE_URL", "TOKENS_PER_CREDIT"]
     }
   }
 }

@@ -12,7 +12,7 @@
 // `<workspacesRoot>/<officeId>/` so the orchestrator daemon can chroot file
 // tools to it later (Phase 6).
 
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import * as PrismaTypes from './generated/internal/prismaNamespace.js';
 import { prisma } from './index.js';
@@ -275,7 +275,68 @@ export async function createOfficeFromTemplate(input: CreateOfficeInput): Promis
   return toOfficeView(office);
 }
 
-// ── Office reads ──────────────────────────────────────────────────────────
+// ── Office lifecycle: rename + delete (Phase G2) ─────────────────────────────
+
+/**
+ * Rename an office. Owner-only. Returns the updated OfficeView, or null if the
+ * office doesn't exist or the user isn't the owner.
+ */
+export async function renameOffice(
+  officeId: string,
+  userId: string,
+  name: string,
+): Promise<OfficeView | null> {
+  const office = await prisma.office.findUnique({
+    where: { id: officeId },
+    select: { ownerId: true },
+  });
+  if (!office || office.ownerId !== userId) return null;
+
+  const trimmed = name.trim();
+  if (trimmed.length === 0 || trimmed.length > 120) return null;
+
+  const updated = await prisma.office.update({
+    where: { id: officeId },
+    data: { name: trimmed },
+    include: {
+      officeAgents: { orderBy: { stepOrder: 'asc' } },
+      template: { select: { name: true } },
+    },
+  });
+  return toOfficeView(updated);
+}
+
+/**
+ * Delete an office. Owner-only. Cascades all children (tasks/events/artifacts/
+ * officeAgents/memberships) inside a transaction, then removes the workspace
+ * folder from disk (best-effort). Returns true if deleted, false if the user
+ * isn't the owner or the office doesn't exist.
+ */
+export async function deleteOffice(officeId: string, userId: string): Promise<boolean> {
+  const office = await prisma.office.findUnique({
+    where: { id: officeId },
+    select: { ownerId: true, workspacePath: true },
+  });
+  if (!office || office.ownerId !== userId) return false;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.artifact.deleteMany({ where: { task: { officeId } } });
+    await tx.event.deleteMany({ where: { officeId } });
+    await tx.task.deleteMany({ where: { officeId } });
+    await tx.officeAgent.deleteMany({ where: { officeId } });
+    await tx.officeMembership.deleteMany({ where: { officeId } });
+    await tx.office.delete({ where: { id: officeId } });
+  });
+
+  // Remove the workspace folder (best-effort — never block deletion on FS).
+  if (office.workspacePath) {
+    const root = office.workspacePath.startsWith('/') || /^[A-Za-z]:/.test(office.workspacePath)
+      ? office.workspacePath
+      : resolve(process.cwd(), office.workspacePath);
+    await rm(root, { recursive: true, force: true }).catch(() => {});
+  }
+  return true;
+}
 
 /**
  * List every office the given user owns or is a member of, newest first.

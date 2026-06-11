@@ -26,9 +26,10 @@ export interface QueuedTask {
 export async function dequeueTask(): Promise<QueuedTask | null> {
   // In a single-worker MVP, a simple findFirst + update is fine.
   // For multi-worker, we'd use a transaction or SKIP LOCKED.
+  // Higher priority first (Team offices enqueue at priority 10), then FIFO.
   const task = await prisma.task.findFirst({
     where: { status: 'queued' },
-    orderBy: { createdAt: 'asc' },
+    orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
   });
   if (!task) return null;
 

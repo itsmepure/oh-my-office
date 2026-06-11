@@ -23,6 +23,11 @@ vi.mock('@repo/db/offices', () => ({
   },
 }));
 
+const canCreateOfficeMock = vi.fn();
+vi.mock('@repo/db/entitlements', () => ({
+  canCreateOffice: (...args: unknown[]) => canCreateOfficeMock(...args),
+}));
+
 // Import after mocks.
 const routeModule = await import('./route.js');
 const officesModule = await import('@repo/db/offices');
@@ -40,6 +45,9 @@ function makeRequest(body: unknown): NextRequest {
 beforeEach(() => {
   authMock.mockReset();
   createOfficeFromTemplateMock.mockReset();
+  canCreateOfficeMock.mockReset();
+  // Default: entitlement allows office creation. Individual tests override.
+  canCreateOfficeMock.mockResolvedValue({ allowed: true });
 });
 
 describe('POST /api/offices', () => {
@@ -121,5 +129,18 @@ describe('POST /api/offices', () => {
     createOfficeFromTemplateMock.mockRejectedValue(new Error('DB down'));
     const res = await POST(makeRequest({ templateId: 't', name: 'O' }));
     expect(res.status).toBe(500);
+  });
+
+  it('returns 402 when the plan office limit is reached', async () => {
+    authMock.mockResolvedValue({ user: { id: 'u-1' } });
+    canCreateOfficeMock.mockResolvedValue({
+      allowed: false,
+      reason: 'Your plan allows 2 offices. Upgrade to create more.',
+      upgradeTo: 'PRO',
+    });
+    const res = await POST(makeRequest({ templateId: 't', name: 'O' }));
+    expect(res.status).toBe(402);
+    // Must NOT attempt to create when blocked.
+    expect(createOfficeFromTemplateMock).not.toHaveBeenCalled();
   });
 });

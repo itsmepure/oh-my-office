@@ -20,7 +20,7 @@
   --accent-dim: #b9842f;
   --text: #eceef6;        /* primary text */
   --text-muted: #9aa1bd;  /* secondary text */
-  --text-faint: #6b7193;  /* tertiary / captions */
+  --text-faint: #7a82a0;  /* tertiary / captions — bumped for AA contrast */
   --success: #46cfa6;
   --danger: #ec6a59;
 }
@@ -32,6 +32,17 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
+}
+
+/*
+ * Global focus-visible ring — accessibility (ui-ux-pro-max rule `focus-states`,
+ * CRITICAL). Keyboard users get a clear 2px amber ring on every interactive
+ * element; mouse clicks don't trigger it (focus-visible only). Square to match
+ * the flat terminal aesthetic.
+ */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /*
@@ -70,4 +81,20 @@ body {
 }
 *::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/*
+ * Respect prefers-reduced-motion (ui-ux-pro-max rule `reduced-motion`,
+ * CRITICAL). Users who request less motion get near-instant transitions
+ * instead of animations.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

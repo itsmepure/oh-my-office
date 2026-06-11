@@ -4,6 +4,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import { canUseFullAgentBuilder } from '@repo/db/entitlements';
 import { AgentBuilderForm } from './form';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
 export default async function NewAgentPage() {
   const session = await auth();
   if (!session?.user) redirect('/login');
+
+  const knowledgeGate = await canUseFullAgentBuilder(session.user.id);
 
   return (
     <main className="min-h-screen bg-bg p-8">
@@ -23,7 +26,7 @@ export default async function NewAgentPage() {
           <p className="mt-1 text-sm text-content-muted">
             Configure your custom AI agent. You can add it to an office later.
           </p>
-          <AgentBuilderForm />
+          <AgentBuilderForm canUseKnowledge={knowledgeGate.allowed} />
         </div>
       </div>
     </main>

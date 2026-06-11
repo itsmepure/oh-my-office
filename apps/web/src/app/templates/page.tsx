@@ -99,7 +99,9 @@ export default async function TemplatesPage() {
                         className="rounded-md border border-line bg-surface-2 p-3 text-sm"
                       >
                         <div className="font-medium text-content">{a.name}</div>
-                        <div className="text-xs text-content-muted">{a.role}</div>
+                        {a.role && a.role !== a.name && (
+                          <div className="text-xs text-content-muted">{a.role}</div>
+                        )}
                       </li>
                     ))}
                   </ul>

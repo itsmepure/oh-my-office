@@ -8,7 +8,7 @@
 
 import { resolve } from 'node:path';
 import { config as loadEnv } from 'dotenv';
-import { AnthropicProvider } from '@repo/agents';
+import { AnthropicProvider, OpenAICompatibleProvider, type Provider } from '@repo/agents';
 import { reconcileStuckTasks, dequeueTask } from './queue.js';
 import { runTask } from './runner.js';
 import { startRealtimeServer, type RealtimeServerHandle } from './realtime.js';
@@ -24,15 +24,29 @@ const REALTIME_PORT = Number(process.env['ORCHESTRATOR_WS_PORT'] ?? 3001);
 
 // Secrets are read from env only — never hardcoded.
 const ANTHROPIC_API_KEY = process.env['ANTHROPIC_API_KEY'] ?? '';
+const LLM_API_KEY = process.env['LLM_API_KEY'] ?? '';
 const AUTH_SECRET = process.env['AUTH_SECRET'] ?? '';
+
+/** Pick the LLM provider: OpenAI-compatible (DeepSeek/router) if LLM_API_KEY
+ * is set, else Anthropic. Keeps the provider interface (Non-Negotiable #3). */
+function buildProvider(): Provider {
+  if (LLM_API_KEY) {
+    const baseUrl = process.env['LLM_BASE_URL'] ?? 'https://api.deepseek.com';
+    const model = process.env['LLM_MODEL'] ?? 'deepseek-v4-pro';
+    console.log(`[orchestrator] LLM provider: OpenAI-compatible (${baseUrl}, model=${model})`);
+    return new OpenAICompatibleProvider({ apiKey: LLM_API_KEY, baseUrl, model });
+  }
+  console.log('[orchestrator] LLM provider: Anthropic');
+  return new AnthropicProvider(ANTHROPIC_API_KEY);
+}
 
 async function main(): Promise<void> {
   console.log('[orchestrator] Starting workflow daemon...');
 
-  if (!ANTHROPIC_API_KEY) {
+  if (!LLM_API_KEY && !ANTHROPIC_API_KEY) {
     console.warn(
-      '[orchestrator] ⚠ ANTHROPIC_API_KEY is not set — LLM calls will fail. ' +
-      'Set it in the orchestrator env or root .env.',
+      '[orchestrator] ⚠ No LLM key set (LLM_API_KEY or ANTHROPIC_API_KEY) — LLM calls will fail. ' +
+      'Set one in the orchestrator env or root .env.',
     );
   }
 
@@ -50,7 +64,7 @@ async function main(): Promise<void> {
   // 2. Reconcile any tasks stuck in 'running' from a crashed instance.
   await reconcileStuckTasks();
 
-  const provider = new AnthropicProvider(ANTHROPIC_API_KEY);
+  const provider = buildProvider();
 
   // 3. Main poll loop.
   console.log(`[orchestrator] Polling for queued tasks every ${POLL_INTERVAL_MS}ms...`);

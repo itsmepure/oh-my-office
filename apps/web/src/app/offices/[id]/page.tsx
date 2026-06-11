@@ -11,15 +11,23 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
+import { prisma } from '@repo/db';
 import { getOfficeById } from '@repo/db/offices';
-import { listUserAgents } from '@repo/db/agents';
+import { listUserAgents, listPlatformAgents } from '@repo/db/agents';
 import { listOfficeTasks } from '@repo/db/tasks';
+import { getPlan } from '@repo/db/entitlements';
+import { getBalance } from '@repo/db/credits';
+import { resolveOfficeKey } from '@repo/db/keys';
 import { ManageOfficeAgents } from './manage-agents';
 import { TaskRunner } from './task-runner';
 import { ActivityFeed } from './activity-feed';
 import { TaskHistory } from './task-history';
+import { TeamMembers } from './team-members';
+import { WorkspaceFiles } from './workspace-files';
+import { OfficeControls } from './office-controls';
 import { PixelOffice } from '@/components/pixel-office/pixel-office';
 import { AppHeader } from '@/components/chrome/app-header';
+import { CreditWarning } from '@/components/credit-warning';
 import { IconArrowRight, IconTerminal, IconUsers, IconActivity } from '@/components/icons';
 
 export const dynamic = 'force-dynamic';
@@ -36,16 +44,42 @@ export default async function OfficeDetailPage({
   const office = await getOfficeById(id, session.user.id);
   if (!office) notFound();
 
-  const [myAgents, tasks] = await Promise.all([
+  const [myAgents, platformAgents, tasks, officeRow] = await Promise.all([
     listUserAgents(session.user.id),
+    listPlatformAgents(),
     listOfficeTasks(id, session.user.id),
+    prisma.office.findUnique({ where: { id }, select: { ownerId: true } }),
   ]);
+
+  // Team members panel: only the office owner on a Team plan can manage members.
+  const isOwner = officeRow?.ownerId === session.user.id;
+  const ownerPlan = isOwner ? await getPlan(session.user.id) : 'FREE';
+  const showTeamPanel = isOwner && ownerPlan === 'TEAM';
+
+  // Credit warning: billed to the office OWNER's pool, and only when running on
+  // the platform key (BYOK runs are free, so no warning).
+  const billingUserId = officeRow?.ownerId ?? session.user.id;
+  const [balance, resolvedKey] = await Promise.all([
+    getBalance(billingUserId),
+    resolveOfficeKey(id, billingUserId),
+  ]);
+
+  // Addable pool = the user's own agents + the platform library. Dedupe by id
+  // in case a user agent ever overlaps.
+  const seen = new Set<string>();
+  const availableAgents = [...myAgents, ...platformAgents].filter((a) => {
+    if (seen.has(a.id)) return false;
+    seen.add(a.id);
+    return true;
+  });
 
   return (
     <div className="min-h-screen">
       <AppHeader />
 
       <main className="mx-auto max-w-6xl px-6 py-8">
+        <CreditWarning total={balance.total} isByok={resolvedKey.isByok} />
+
         {/* Title row */}
         <div className="mb-6">
           <Link
@@ -65,7 +99,10 @@ export default async function OfficeDetailPage({
                 <span className="break-all text-content-faint">{office.workspacePath}</span>
               </p>
             </div>
-            <StatusPill status={office.status} />
+            <div className="flex shrink-0 items-center gap-3">
+              {isOwner && <OfficeControls officeId={office.id} name={office.name} />}
+              <StatusPill status={office.status} />
+            </div>
           </div>
         </div>
 
@@ -82,7 +119,7 @@ export default async function OfficeDetailPage({
           </Panel>
 
           <Panel label="Live Activity Feed" icon={<IconActivity className="h-3.5 w-3.5" />} className="p-4">
-            <ActivityFeed officeId={office.id} />
+            <ActivityFeed officeId={office.id} agents={office.agents} />
           </Panel>
         </div>
 
@@ -96,13 +133,29 @@ export default async function OfficeDetailPage({
         {/* Row 3: agent list + task history */}
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel label="Agent List" icon={<IconUsers className="h-3.5 w-3.5" />} className="p-4">
-            <ManageOfficeAgents office={office} myAgents={myAgents} />
+            <ManageOfficeAgents office={office} myAgents={availableAgents} />
           </Panel>
 
           <Panel label="Task History" className="p-4">
             <TaskHistory officeId={office.id} tasks={tasks} />
           </Panel>
         </div>
+
+        {/* Row 3b: Workspace files (output the agents produced) */}
+        <div className="mt-4">
+          <Panel label="Files" icon={<IconTerminal className="h-3.5 w-3.5" />} className="p-4">
+            <WorkspaceFiles officeId={office.id} />
+          </Panel>
+        </div>
+
+        {/* Row 4: Team members (only for Team-plan owners) */}
+        {showTeamPanel && officeRow && (
+          <div className="mt-4">
+            <Panel label="Team Members" icon={<IconUsers className="h-3.5 w-3.5" />} className="p-4">
+              <TeamMembers officeId={office.id} ownerId={officeRow.ownerId} />
+            </Panel>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -12,6 +12,7 @@ import {
   OfficeNotFoundError,
   InvalidTemplateError,
 } from '@repo/db/offices';
+import { canCreateOffice } from '@repo/db/entitlements';
 
 export async function POST(request: NextRequest): Promise<NextResponse<OfficeView | { error: string }>> {
   // 1. Authn: must be signed in.
@@ -35,7 +36,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<OfficeVie
     );
   }
 
-  // 3. Create.
+  // 3. Entitlement: enforce the per-plan office cap.
+  const gate = await canCreateOffice(session.user.id);
+  if (!gate.allowed) {
+    return NextResponse.json(
+      { error: gate.reason ?? 'Office limit reached', upgradeTo: gate.upgradeTo },
+      { status: 402 },
+    );
+  }
+
+  // 4. Create.
   try {
     const office = await createOfficeFromTemplate({
       ownerId: session.user.id,

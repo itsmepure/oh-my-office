@@ -105,6 +105,19 @@ export async function listUserAgents(userId: string): Promise<AgentView[]> {
   return rows.map(toAgentView);
 }
 
+/**
+ * List platform-provided agents (ownerId = null). These are the built-in
+ * library agents any user can add to an office. Sorted by name for a stable
+ * picker order.
+ */
+export async function listPlatformAgents(): Promise<AgentView[]> {
+  const rows = await prisma.agent.findMany({
+    where: { ownerId: null },
+    orderBy: { name: 'asc' },
+  });
+  return rows.map(toAgentView);
+}
+
 /** Fetch a single agent. If `includeDocs` is true, attaches knowledge docs. */
 export async function getAgentById(
   agentId: string,

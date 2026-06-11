@@ -3,6 +3,7 @@
 //
 // Run: pnpm --filter @repo/db seed
 
+import { resolve } from 'node:path';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from './generated/client.js';
@@ -242,7 +243,10 @@ async function seed() {
         name: 'Demo Dev Team',
         templateId: devTemplate.id,
         ownerId: demoUser.id,
-        workspacePath: 'workspaces/office-demo-001',
+        workspacePath: resolve(
+          process.env['WORKSPACES_ROOT'] ?? 'D:/vibecoding/openoffice/workspaces',
+          'office-demo-001',
+        ),
         officeAgents: { create: snapshotRows },
         memberships: { create: { userId: demoUser.id, role: 'owner' } },
       },
@@ -251,6 +255,21 @@ async function seed() {
   } else {
     console.log('[seed] Demo office already exists, skipping.');
   }
+
+  // ── Demo user subscription + credits (Phase M0) ──────────────────────────
+  // FREE plan + 500 monthly credits (~20 tasks). Idempotent: upsert.
+  const grantResetAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await prisma.subscription.upsert({
+    where: { userId: demoUser.id },
+    create: { userId: demoUser.id, plan: 'FREE', status: 'active' },
+    update: {},
+  });
+  await prisma.creditBalance.upsert({
+    where: { userId: demoUser.id },
+    create: { userId: demoUser.id, granted: 500, purchased: 0, grantResetAt },
+    update: {}, // don't clobber a real balance on re-seed
+  });
+  console.log('[seed] Demo user: FREE plan + 500 credits');
 
   // ── Verification ───────────────────────────────────────────────────────
   const templateCount = await prisma.template.count();

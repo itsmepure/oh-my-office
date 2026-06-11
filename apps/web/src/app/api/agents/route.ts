@@ -5,6 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { agentCreateInputSchema, type AgentView } from '@repo/shared';
 import { auth } from '@/auth';
 import { createAgent, listUserAgents } from '@repo/db/agents';
+import { canUseFullAgentBuilder } from '@repo/db/entitlements';
 
 export async function POST(
   request: NextRequest,
@@ -25,6 +26,19 @@ export async function POST(
       { error: 'Validation failed', issues: parsed.error.flatten() },
       { status: 400 },
     );
+  }
+
+  // Entitlement: knowledge docs are a Pro feature. FREE users can still create
+  // agents, but not attach knowledge docs.
+  const wantsKnowledge = Array.isArray(parsed.data.knowledgeDocs) && parsed.data.knowledgeDocs.length > 0;
+  if (wantsKnowledge) {
+    const gate = await canUseFullAgentBuilder(session.user.id);
+    if (!gate.allowed) {
+      return NextResponse.json(
+        { error: gate.reason ?? 'Knowledge docs require a Pro plan.', upgradeTo: gate.upgradeTo },
+        { status: 402 },
+      );
+    }
   }
 
   const agent = await createAgent(session.user.id, parsed.data);

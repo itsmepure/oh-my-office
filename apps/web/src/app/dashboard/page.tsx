@@ -2,7 +2,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { listUserOffices } from '@repo/db/offices';
+import { getEntitlements } from '@repo/db/entitlements';
 import { AppHeader } from '@/components/chrome/app-header';
+import { OnboardingBanner } from './onboarding-banner';
 import {
   IconBuilding,
   IconUsers,
@@ -22,6 +24,8 @@ export default async function DashboardPage() {
   }
 
   const offices = await listUserOffices(session.user.id);
+  const ent = await getEntitlements(session.user.id);
+  const atCap = ent.limits.maxOffices !== null && ent.officeCount >= ent.limits.maxOffices;
 
   const totalOffices = offices.length;
   const totalAgents = offices.reduce((sum, o) => sum + o.agents.length, 0);
@@ -40,6 +44,8 @@ export default async function DashboardPage() {
       <AppHeader active="dashboard" />
 
       <main className="mx-auto max-w-6xl px-6 py-10">
+        <OnboardingBanner userName={session.user.name ?? 'there'} />
+
         {/* Hero */}
         <div className="mb-10">
           <p className="eyebrow text-[11px] text-content-muted">Agentic Workspace</p>
@@ -73,15 +79,32 @@ export default async function DashboardPage() {
           <div className="mb-5 flex items-end justify-between">
             <div>
               <h2 className="eyebrow text-[11px] text-content-muted">Office List</h2>
-              <p className="mt-1 text-lg font-medium text-content">Your offices</p>
+              <p className="mt-1 text-lg font-medium text-content">
+                Your offices{' '}
+                <span className="font-mono text-sm text-content-faint">
+                  ({ent.officeCount}
+                  {ent.limits.maxOffices !== null ? ` / ${ent.limits.maxOffices}` : ''})
+                </span>
+              </p>
             </div>
-            <Link
-              href="/templates"
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright"
-            >
-              <IconPlus className="h-4 w-4" />
-              New office
-            </Link>
+            {atCap ? (
+              <Link
+                href="/settings"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-accent/50 px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent hover:text-bg"
+                title={`Your plan allows ${ent.limits.maxOffices} offices. Upgrade for more.`}
+              >
+                <IconPlus className="h-4 w-4" />
+                Upgrade for more offices
+              </Link>
+            ) : (
+              <Link
+                href="/templates"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright"
+              >
+                <IconPlus className="h-4 w-4" />
+                New office
+              </Link>
+            )}
           </div>
 
           {offices.length === 0 ? (
@@ -140,7 +163,8 @@ export default async function DashboardPage() {
                 </li>
               ))}
 
-              {/* Create-next placeholder tile — keeps the grid balanced. */}
+              {/* Create-next placeholder tile — keeps the grid balanced. Hidden at cap. */}
+              {!atCap && (
               <li>
                 <Link
                   href="/templates"
@@ -155,6 +179,7 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-xs text-content-faint">From a template</p>
                 </Link>
               </li>
+              )}
             </ul>
           )}
         </section>

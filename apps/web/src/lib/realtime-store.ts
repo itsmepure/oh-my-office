@@ -57,7 +57,21 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
   async connect(input) {
     cleanupSocket();
     manuallyClosed = false;
-    set({ status: 'connecting', lastError: undefined, activeOfficeId: input.officeId, activeTaskId: input.taskId });
+    // Reset the buffer whenever we (re)connect to a DIFFERENT office/task.
+    // The store is a module-level singleton, so without this a previous
+    // session's events (other user, or other office) would linger in memory
+    // after a client-side navigation or account switch. Server endpoints are
+    // tenant-scoped, but the in-memory buffer must be cleared too.
+    const prev = get();
+    const switchingContext =
+      prev.activeOfficeId !== input.officeId || prev.activeTaskId !== input.taskId;
+    set({
+      status: 'connecting',
+      lastError: undefined,
+      activeOfficeId: input.officeId,
+      activeTaskId: input.taskId,
+      ...(switchingContext ? { records: [] } : {}),
+    });
 
     // Always hydrate before connecting. On reconnect this fills any missed gap.
     await get().hydrate(input);
@@ -68,17 +82,22 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
       if (!tokenRes.ok) throw new Error(`Token request failed (${tokenRes.status})`);
       const tokenData = (await tokenRes.json()) as TokenResponse;
 
-      socket = new WebSocket(tokenData.wsUrl);
-      socket.onopen = () => {
-        socket?.send(JSON.stringify({ type: 'auth', token: tokenData.token }));
+      const ws = new WebSocket(tokenData.wsUrl);
+      socket = ws;
+      ws.onopen = () => {
+        // Guard: only send if this socket is still the active one AND open.
+        if (socket === ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'auth', token: tokenData.token }));
+        }
       };
-      socket.onmessage = (message) => {
-        handleSocketMessage(message.data, input);
+      ws.onmessage = (message) => {
+        if (socket !== ws) return; // stale socket from a previous connect
+        handleSocketMessage(message.data, input, ws);
       };
-      socket.onerror = () => {
+      ws.onerror = () => {
         set({ status: 'error', lastError: 'WebSocket error' });
       };
-      socket.onclose = () => {
+      ws.onclose = () => {
         if (manuallyClosed) return;
         set({ status: 'connecting' });
         reconnectTimer = setTimeout(() => {
@@ -96,7 +115,9 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
   disconnect() {
     manuallyClosed = true;
     cleanupSocket();
-    set({ status: 'idle', activeOfficeId: undefined, activeTaskId: undefined });
+    // Clear the buffer so a different user/session in the same browser tab
+    // never inherits the previous session's events.
+    set({ status: 'idle', activeOfficeId: undefined, activeTaskId: undefined, records: [] });
   },
 
   append(record) {
@@ -107,6 +128,7 @@ export const useRealtimeStore = create<RealtimeState>((set, get) => ({
 function handleSocketMessage(
   raw: unknown,
   input: { officeId: string; taskId?: string },
+  ws: WebSocket,
 ): void {
   let message: unknown;
   try {
@@ -119,7 +141,9 @@ function handleSocketMessage(
   const msg = message as Record<string, unknown>;
 
   if (msg.type === 'auth.ok') {
-    socket?.send(JSON.stringify({ type: 'subscribe', officeId: input.officeId, taskId: input.taskId }));
+    if (socket === ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'subscribe', officeId: input.officeId, taskId: input.taskId }));
+    }
     return;
   }
 

@@ -83,7 +83,12 @@ export function reduceEventsToAgentStates(
         activeAgent = ev.agentRef;
         break;
       case 'task.status':
-        // Task-level signal; not bound to an agent.
+        // Task-level signal. When the whole task settles (done/failed), all
+        // agents return to idle — the run is over, nobody is working anymore.
+        if (ev.status === 'done' || ev.status === 'failed') {
+          for (const ref of Object.keys(byAgent)) byAgent[ref] = 'idle';
+          activeAgent = undefined;
+        }
         break;
     }
   }

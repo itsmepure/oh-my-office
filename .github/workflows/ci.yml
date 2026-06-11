@@ -32,6 +32,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://openoffice:openoffice@localhost:5432/openoffice
       AUTH_SECRET: ci-test-secret-not-for-production
+      # 64-char hex (32 bytes) for AES-256-GCM BYOK key encryption in tests.
+      KEY_ENCRYPTION_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
       # Intentionally NO ANTHROPIC_API_KEY — tests must use FakeProvider.
 
     steps:

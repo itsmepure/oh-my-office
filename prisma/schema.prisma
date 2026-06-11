@@ -23,6 +23,10 @@ model User {
   agents            Agent[]
   officeMemberships OfficeMembership[]
   ownedOffices      Office[]
+  subscription      Subscription?
+  creditBalance     CreditBalance?
+  creditLedger      CreditLedger[]
+  llmKeys           LlmKey[]
 
   @@index([email])
 }
@@ -143,6 +147,7 @@ model Task {
   officeId   String
   prompt     String
   status     String    @default("queued") // queued | running | done | failed
+  priority   Int       @default(0) // higher = dequeued first (Team tier)
   createdAt  DateTime  @default(now())
   finishedAt DateTime?
 
@@ -152,6 +157,7 @@ model Task {
 
   @@index([officeId])
   @@index([status])
+  @@index([status, priority])
 }
 
 // ─── Real-time Events ───────────────────────────────────────────────────────
@@ -186,4 +192,75 @@ model Artifact {
   task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@index([taskId])
+}
+
+// ─── Monetization (Phase M0) ────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  TEAM
+}
+
+model Subscription {
+  id                   String    @id @default(uuid())
+  userId               String    @unique
+  plan                 Plan      @default(FREE)
+  status               String    @default("active") // active | past_due | canceled
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditBalance {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  granted      Int      @default(0) // monthly grant remaining
+  purchased    Int      @default(0) // bought packs (consumed after grant)
+  grantResetAt DateTime // when `granted` refills
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Append-only audit of every credit movement. CreditBalance is the source of
+// truth for the current balance; this is the immutable history.
+model CreditLedger {
+  id           String   @id @default(uuid())
+  userId       String
+  delta        Int // negative = spend, positive = grant/purchase/refund
+  reason       String // task_step | monthly_grant | purchase | refund
+  taskId       String?
+  agentRef     String?
+  inputTokens  Int?
+  outputTokens Int?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// BYOK: a user (or one of their offices) can attach their own LLM key.
+// Stored encrypted at rest (AES-256-GCM). Never returned to the browser.
+model LlmKey {
+  id         String   @id @default(uuid())
+  userId     String
+  officeId   String? // null = account-default; set = office override
+  provider   String   @default("deepseek")
+  baseUrl    String?
+  model      String?
+  last4      String // last 4 chars of the raw key, for masked display
+  ciphertext String
+  iv         String
+  authTag    String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, officeId])
+  @@index([userId])
 }

@@ -17,6 +17,7 @@ const NAV: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', key: 'dashboard' },
   { label: 'Templates', href: '/templates', key: 'templates' },
   { label: 'Agents', href: '/agents', key: 'agents' },
+  { label: 'Settings', href: '/settings', key: 'settings' },
 ];
 
 interface AppHeaderProps {

@@ -120,9 +120,11 @@ export function ManageOfficeAgents({ office, myAgents }: Props) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-content">{oa.agent.name}</h3>
-                  <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-content-muted">
-                    {oa.agent.role}
-                  </span>
+                  {oa.agent.role && oa.agent.role !== oa.agent.name && (
+                    <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-content-muted">
+                      {oa.agent.role}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 line-clamp-2 text-sm text-content-muted">
                   {oa.agent.systemPrompt}

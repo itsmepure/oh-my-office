@@ -41,8 +41,18 @@ export default async function AgentsPage() {
         </header>
 
         {agents.length === 0 ? (
-          <div className="rounded-md border border-dashed border-line bg-surface p-8 text-center text-sm text-content-muted">
-            You haven&apos;t created any agents yet.
+          <div className="border border-dashed border-line bg-surface p-12 text-center">
+            <p className="font-mono text-sm text-content">No agents yet.</p>
+            <p className="mx-auto mt-2 max-w-md text-sm text-content-muted">
+              Your custom AI agents live here. Build one, then add it to an office
+              from the office detail page.
+            </p>
+            <Link
+              href="/agents/new"
+              className="mt-6 inline-block bg-accent px-5 py-2.5 text-sm font-medium text-bg transition hover:bg-accent-bright"
+            >
+              + Create agent
+            </Link>
           </div>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2">

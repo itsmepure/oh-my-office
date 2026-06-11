@@ -6,12 +6,23 @@ vi.mock('@/auth', () => ({ auth: () => authMock() }));
 
 const officeMembershipFindUniqueMock = vi.fn();
 const taskCreateMock = vi.fn();
+const officeFindUniqueMock = vi.fn();
 
 vi.mock('@repo/db', () => ({
   prisma: {
     officeMembership: { findUnique: (...args: unknown[]) => officeMembershipFindUniqueMock(...args) },
     task: { create: (...args: unknown[]) => taskCreateMock(...args) },
+    office: { findUnique: (...args: unknown[]) => officeFindUniqueMock(...args) },
   },
+}));
+
+const getPlanMock = vi.fn();
+vi.mock('@repo/db/entitlements', () => ({
+  getPlan: (...args: unknown[]) => getPlanMock(...args),
+}));
+
+vi.mock('@/lib/rate-limit', () => ({
+  rateLimit: () => ({ ok: true, remaining: 19, retryAfterMs: 0 }),
 }));
 
 const { POST } = await import('./route.js');
@@ -28,6 +39,11 @@ beforeEach(() => {
   authMock.mockReset();
   officeMembershipFindUniqueMock.mockReset();
   taskCreateMock.mockReset();
+  officeFindUniqueMock.mockReset();
+  getPlanMock.mockReset();
+  // Defaults: office exists (FREE owner) → priority 0.
+  officeFindUniqueMock.mockResolvedValue({ ownerId: 'owner-1' });
+  getPlanMock.mockResolvedValue('FREE');
 });
 
 describe('POST /api/tasks', () => {
@@ -69,7 +85,27 @@ describe('POST /api/tasks', () => {
         officeId: '11111111-1111-4111-8111-111111111111',
         prompt: 'Do work',
         status: 'queued',
+        priority: 0,
       },
+    });
+  });
+
+  it('sets priority 10 for Team-owned offices', async () => {
+    authMock.mockResolvedValue({ user: { id: 'u1' } });
+    officeMembershipFindUniqueMock.mockResolvedValue({ id: 'm1' });
+    officeFindUniqueMock.mockResolvedValue({ ownerId: 'team-owner' });
+    getPlanMock.mockResolvedValue('TEAM');
+    taskCreateMock.mockResolvedValue({
+      id: 'task-2',
+      officeId: '11111111-1111-4111-8111-111111111111',
+      prompt: 'Do work',
+      status: 'queued',
+      createdAt: new Date('2026-06-10T00:00:00.000Z'),
+    });
+    const res = await POST(req({ officeId: '11111111-1111-4111-8111-111111111111', prompt: 'Do work' }));
+    expect(res.status).toBe(201);
+    expect(taskCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({ priority: 10 }),
     });
   });
 });

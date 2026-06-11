@@ -93,22 +93,24 @@ export function PixelOffice({ agents, width, height }: PixelOfficeProps) {
               data-testid="agent-state-row"
               data-agent-ref={a.id}
               data-state={state}
-              className="flex items-center justify-between rounded border border-gray-200 bg-white px-2 py-1"
+              className="flex items-center justify-between border border-line bg-surface-2 px-2 py-1"
             >
               <span className="truncate">
-                <span className="font-medium text-gray-800">{a.agent.name}</span>{' '}
-                <span className="text-gray-500">· {a.agent.role}</span>
+                <span className="font-medium text-content">{a.agent.name}</span>
+                {a.agent.role && a.agent.role !== a.agent.name && (
+                  <span className="text-content-muted"> · {a.agent.role}</span>
+                )}
               </span>
               <span
                 className={
-                  'rounded px-1.5 py-0.5 font-mono text-[10px] uppercase ' +
+                  'px-1.5 py-0.5 font-mono text-[10px] uppercase ' +
                   (state === 'working'
-                    ? 'bg-blue-100 text-blue-700'
+                    ? 'bg-accent/15 text-accent'
                     : state === 'thinking'
-                      ? 'bg-amber-100 text-amber-700'
+                      ? 'bg-accent/10 text-accent-dim'
                       : state === 'done'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-gray-100 text-gray-500')
+                        ? 'bg-success/15 text-success'
+                        : 'bg-surface text-content-muted')
                 }
               >
                 {state}

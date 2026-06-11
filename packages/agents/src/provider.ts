@@ -66,6 +66,7 @@ export class FakeProvider implements Provider {
     private readonly responses: Array<{
       text?: string;
       toolCalls?: Array<{ name: string; args: Record<string, unknown> }>;
+      usage?: { input: number; output: number };
     }>,
   ) {}
 
@@ -81,6 +82,7 @@ export class FakeProvider implements Provider {
         id: `fake-tc-${this.idx}-${i}`,
         ...tc,
       })),
+      usage: next.usage,
     };
   }
 
@@ -168,6 +170,101 @@ export class AnthropicProvider implements Provider {
       toolCalls,
       usage: data.usage
         ? { input: data.usage.input_tokens, output: data.usage.output_tokens }
+        : undefined,
+    };
+  }
+}
+
+// ── OpenAICompatibleProvider (DeepSeek, OpenRouter, etc.) ──────────────────
+
+/**
+ * Calls any OpenAI-compatible Chat Completions API (`POST /chat/completions`
+ * with tools). Used for DeepSeek (https://api.deepseek.com) and similar
+ * routers. Reads the key + base URL from constructor or env.
+ */
+export class OpenAICompatibleProvider implements Provider {
+  private readonly apiKey: string;
+  private readonly baseUrl: string;
+  private readonly defaultModel: string;
+
+  constructor(opts?: { apiKey?: string; baseUrl?: string; model?: string }) {
+    this.apiKey = opts?.apiKey ?? process.env['LLM_API_KEY'] ?? '';
+    this.baseUrl = (opts?.baseUrl ?? process.env['LLM_BASE_URL'] ?? 'https://api.deepseek.com').replace(/\/$/, '');
+    this.defaultModel = opts?.model ?? process.env['LLM_MODEL'] ?? 'deepseek-v4-pro';
+  }
+
+  async generate(params: GenerateParams): Promise<GenerateResult> {
+    const apiKey = params.apiKey ?? this.apiKey;
+    if (!apiKey) throw new Error('LLM_API_KEY is not set');
+
+    // Always use this provider's configured model. The per-request model comes
+    // from agent snapshots which may carry a different vendor's model name
+    // (e.g. Anthropic), which this endpoint would reject. The provider's own
+    // model is the source of truth for which backend it talks to.
+    const model = this.defaultModel;
+
+    const body: Record<string, unknown> = {
+      model,
+      temperature: params.temperature ?? 0.3,
+      messages: [
+        { role: 'system', content: params.systemPrompt },
+        { role: 'user', content: params.userPrompt },
+      ],
+    };
+
+    if (params.tools.length > 0) {
+      body.tools = params.tools.map((t) => ({
+        type: 'function',
+        function: {
+          name: t.name,
+          description: t.description,
+          parameters: t.parameters,
+        },
+      }));
+    }
+
+    const res = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      throw new Error(`LLM API error ${res.status}: ${errBody.slice(0, 500)}`);
+    }
+
+    const data = (await res.json()) as {
+      choices: Array<{
+        message: {
+          content: string | null;
+          tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }>;
+        };
+      }>;
+      usage?: { prompt_tokens: number; completion_tokens: number };
+    };
+
+    const msg = data.choices[0]?.message;
+    const text = msg?.content ?? '';
+
+    const toolCalls: ToolCall[] = (msg?.tool_calls ?? []).map((tc) => {
+      let args: Record<string, unknown> = {};
+      try {
+        args = JSON.parse(tc.function.arguments) as Record<string, unknown>;
+      } catch {
+        args = {};
+      }
+      return { id: tc.id, name: tc.function.name, args };
+    });
+
+    return {
+      text,
+      toolCalls,
+      usage: data.usage
+        ? { input: data.usage.prompt_tokens, output: data.usage.completion_tokens }
         : undefined,
     };
   }

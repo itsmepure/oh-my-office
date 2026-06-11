@@ -153,9 +153,27 @@ describe('reduceEventsToAgentStates', () => {
     expect(snap.byAgent.b).toBe('thinking');
   });
 
-  it('task.status events do not change any agent state', () => {
+  it('task.status running does not change agent state', () => {
     const snap = reduceEventsToAgentStates(
       [taskStatus('running'), taskStatus('done')],
+      ['a'],
+    );
+    expect(snap.byAgent.a).toBe('idle');
+    expect(snap.activeAgent).toBeUndefined();
+  });
+
+  it('task.status done resets all agents back to idle', () => {
+    const snap = reduceEventsToAgentStates(
+      [stepStart('a'), output('a'), stepDone('a'), taskStatus('done')],
+      ['a'],
+    );
+    expect(snap.byAgent.a).toBe('idle');
+    expect(snap.activeAgent).toBeUndefined();
+  });
+
+  it('task.status failed also resets agents to idle', () => {
+    const snap = reduceEventsToAgentStates(
+      [stepStart('a'), stepFailed('a'), taskStatus('failed')],
       ['a'],
     );
     expect(snap.byAgent.a).toBe('idle');
