@@ -21,6 +21,8 @@ for (const candidate of ['.env.local', '.env', '../../.env.local', '../../.env']
 
 const POLL_INTERVAL_MS = 5_000;
 const REALTIME_PORT = Number(process.env['ORCHESTRATOR_WS_PORT'] ?? 3001);
+/** Max tasks executing at once across this worker. Tune to credit/cost budget. */
+const MAX_CONCURRENT = Number(process.env['ORCHESTRATOR_MAX_CONCURRENT'] ?? 3);
 
 // Secrets are read from env only — never hardcoded.
 const ANTHROPIC_API_KEY = process.env['ANTHROPIC_API_KEY'] ?? '';
@@ -66,18 +68,30 @@ async function main(): Promise<void> {
 
   const provider = buildProvider();
 
-  // 3. Main poll loop.
-  console.log(`[orchestrator] Polling for queued tasks every ${POLL_INTERVAL_MS}ms...`);
+  // 3. Main poll loop with a bounded concurrency pool. Each tick fills any
+  // free slots by atomically claiming queued tasks (SKIP LOCKED), so multiple
+  // tasks run in parallel up to MAX_CONCURRENT — and multiple worker processes
+  // can run safely against the same DB.
+  console.log(`[orchestrator] Polling every ${POLL_INTERVAL_MS}ms, up to ${MAX_CONCURRENT} concurrent tasks...`);
+
+  let active = 0;
 
   const poll = async (): Promise<void> => {
     try {
-      const task = await dequeueTask();
-      if (task) {
-        console.log(`[orchestrator] Dequeued task ${task.id} for office ${task.officeId}`);
-        // Run the task in the background — don't block the poll loop.
-        runTask(task, { provider }).catch((err: unknown) => {
-          console.error(`[orchestrator] Task ${task.id} failed:`, err);
-        });
+      // Fill every free slot this tick.
+      while (active < MAX_CONCURRENT) {
+        const task = await dequeueTask();
+        if (!task) break; // queue empty
+        active += 1;
+        console.log(`[orchestrator] Dequeued task ${task.id} (active=${active}/${MAX_CONCURRENT})`);
+        // Run in background; free the slot on completion.
+        void runTask(task, { provider })
+          .catch((err: unknown) => {
+            console.error(`[orchestrator] Task ${task.id} failed:`, err);
+          })
+          .finally(() => {
+            active -= 1;
+          });
       }
     } catch (err) {
       console.error('[orchestrator] Poll error:', err);

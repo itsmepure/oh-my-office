@@ -41,6 +41,8 @@ export interface RunOptions {
   provider: Provider;
   /** Max tool-calling iterations per agent step. */
   maxIterations?: number;
+  /** Wall-clock timeout per agent step (ms). Runaway steps are killed. */
+  stepTimeoutMs?: number;
   /**
    * Factory that builds a Provider from a resolved BYOK key. Injectable for
    * tests; defaults to OpenAICompatibleProvider. When an office has a BYOK key,
@@ -51,6 +53,27 @@ export interface RunOptions {
 
 // ── Public API ─────────────────────────────────────────────────────────────
 
+/** Default per-step wall-clock timeout (ms). Override via env or RunOptions. */
+const DEFAULT_STEP_TIMEOUT_MS = Number(process.env['STEP_TIMEOUT_MS'] ?? 180_000);
+
+class StepTimeoutError extends Error {
+  override name = 'StepTimeoutError';
+  constructor(ms: number) {
+    super(`Step exceeded the ${ms}ms time limit and was aborted.`);
+  }
+}
+
+/** Race a promise against a wall-clock timeout. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolvePromise, reject) => {
+    const timer = setTimeout(() => reject(new StepTimeoutError(ms)), ms);
+    p.then(
+      (v) => { clearTimeout(timer); resolvePromise(v); },
+      (e) => { clearTimeout(timer); reject(e); },
+    );
+  });
+}
+
 /**
  * Execute a single task through its office's pipeline. Returns void — all
  * state is persisted via events + task status updates. Throws on hard
@@ -60,7 +83,7 @@ export async function runTask(
   task: QueuedTask,
   opts: RunOptions,
 ): Promise<void> {
-  const { provider, maxIterations = 10, makeByokProvider } = opts;
+  const { provider, maxIterations = 10, makeByokProvider, stepTimeoutMs = DEFAULT_STEP_TIMEOUT_MS } = opts;
 
   // 1. Load office + agents.
   const office = await prisma.office.findUnique({
@@ -218,9 +241,9 @@ export async function runTask(
       }
     }
 
-    // Run the loop.
+    // Run the loop (raced against a wall-clock timeout to kill runaways).
     try {
-      const loopResult = await runAgentLoop({
+      const loopResult = await withTimeout(runAgentLoop({
         provider: activeProvider,
         agent: agentSnapshot,
         taskContext,
@@ -252,7 +275,7 @@ export async function runTask(
           }
           await persistEvent(event);
         },
-      });
+      }), stepTimeoutMs);
 
       // Store this step's output as input to the next step.
       priorOutputs.push(`[${agentSnapshot.name} (${agentSnapshot.role})]: ${loopResult.output}`);

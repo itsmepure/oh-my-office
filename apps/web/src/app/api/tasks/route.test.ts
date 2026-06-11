@@ -6,12 +6,16 @@ vi.mock('@/auth', () => ({ auth: () => authMock() }));
 
 const officeMembershipFindUniqueMock = vi.fn();
 const taskCreateMock = vi.fn();
+const taskCountMock = vi.fn();
 const officeFindUniqueMock = vi.fn();
 
 vi.mock('@repo/db', () => ({
   prisma: {
     officeMembership: { findUnique: (...args: unknown[]) => officeMembershipFindUniqueMock(...args) },
-    task: { create: (...args: unknown[]) => taskCreateMock(...args) },
+    task: {
+      create: (...args: unknown[]) => taskCreateMock(...args),
+      count: (...args: unknown[]) => taskCountMock(...args),
+    },
     office: { findUnique: (...args: unknown[]) => officeFindUniqueMock(...args) },
   },
 }));
@@ -39,11 +43,13 @@ beforeEach(() => {
   authMock.mockReset();
   officeMembershipFindUniqueMock.mockReset();
   taskCreateMock.mockReset();
+  taskCountMock.mockReset();
   officeFindUniqueMock.mockReset();
   getPlanMock.mockReset();
-  // Defaults: office exists (FREE owner) → priority 0.
+  // Defaults: office exists (FREE owner) → priority 0; no in-flight tasks.
   officeFindUniqueMock.mockResolvedValue({ ownerId: 'owner-1' });
   getPlanMock.mockResolvedValue('FREE');
+  taskCountMock.mockResolvedValue(0);
 });
 
 describe('POST /api/tasks', () => {
@@ -107,5 +113,15 @@ describe('POST /api/tasks', () => {
     expect(taskCreateMock).toHaveBeenCalledWith({
       data: expect.objectContaining({ priority: 10 }),
     });
+  });
+
+  it('returns 429 when the user is at their concurrent-task cap (FREE=1)', async () => {
+    authMock.mockResolvedValue({ user: { id: 'u1' } });
+    officeMembershipFindUniqueMock.mockResolvedValue({ id: 'm1' });
+    getPlanMock.mockResolvedValue('FREE');
+    taskCountMock.mockResolvedValue(1); // already 1 in-flight, cap is 1
+    const res = await POST(req({ officeId: '11111111-1111-4111-8111-111111111111', prompt: 'Do work' }));
+    expect(res.status).toBe(429);
+    expect(taskCreateMock).not.toHaveBeenCalled();
   });
 });

@@ -7,8 +7,46 @@
 // and verifies the resolved path stays within that root. Use `resolve()` +
 // prefix check rather than string-matching to defeat `../../etc/passwd`.
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { resolve, relative, sep } from 'node:path';
+
+// ── Workspace quota (Phase L4 — abuse / cost control) ────────────────────────
+
+/** Max bytes for a single file write. Default 5 MB; override via env. */
+export const MAX_FILE_BYTES = Number(process.env['WORKSPACE_MAX_FILE_BYTES'] ?? 5 * 1024 * 1024);
+/** Max total bytes across the whole office workspace. Default 50 MB. */
+export const MAX_WORKSPACE_BYTES = Number(process.env['WORKSPACE_MAX_TOTAL_BYTES'] ?? 50 * 1024 * 1024);
+
+export class QuotaExceededError extends Error {
+  override name = 'QuotaExceededError';
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+/** Sum the byte size of every file under `dir` (recursive). Missing dir → 0. */
+async function dirSize(dir: string): Promise<number> {
+  let total = 0;
+  let entries: import('node:fs').Dirent[];
+  try {
+    entries = (await readdir(dir, { withFileTypes: true })) as unknown as import('node:fs').Dirent[];
+  } catch {
+    return 0;
+  }
+  for (const entry of entries) {
+    const abs = resolve(dir, String(entry.name));
+    if (entry.isDirectory()) {
+      total += await dirSize(abs);
+    } else if (entry.isFile()) {
+      try {
+        total += (await stat(abs)).size;
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  return total;
+}
 
 // ── Path Guard ─────────────────────────────────────────────────────────────
 
@@ -79,9 +117,33 @@ export async function safeWriteFile(
 ): Promise<ToolResult> {
   try {
     const safe = guardPath(workspaceRoot, requestedPath);
+    const writeBytes = Buffer.byteLength(content, 'utf-8');
+
+    // Quota: single-file cap.
+    if (writeBytes > MAX_FILE_BYTES) {
+      return {
+        success: false,
+        output: `File too large: ${writeBytes} bytes exceeds the ${MAX_FILE_BYTES}-byte per-file limit.`,
+      };
+    }
+    // Quota: total-workspace cap (account for replacing an existing file).
+    let existing = 0;
+    try {
+      existing = (await stat(safe)).size;
+    } catch {
+      /* new file */
+    }
+    const projected = (await dirSize(workspaceRoot)) - existing + writeBytes;
+    if (projected > MAX_WORKSPACE_BYTES) {
+      return {
+        success: false,
+        output: `Workspace quota exceeded: this write would bring the workspace to ${projected} bytes, over the ${MAX_WORKSPACE_BYTES}-byte limit.`,
+      };
+    }
+
     await mkdir(resolve(safe, '..'), { recursive: true });
     await writeFile(safe, content, 'utf-8');
-    return { success: true, output: `Wrote ${Buffer.byteLength(content, 'utf-8')} bytes to ${relative(workspaceRoot, safe)}` };
+    return { success: true, output: `Wrote ${writeBytes} bytes to ${relative(workspaceRoot, safe)}` };
   } catch (err) {
     if (err instanceof PathEscapeError) throw err;
     return { success: false, output: `Failed to write file: ${(err as Error).message}` };

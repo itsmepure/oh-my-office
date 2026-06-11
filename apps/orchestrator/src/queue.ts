@@ -20,29 +20,31 @@ export interface QueuedTask {
 // ── Queue poller ───────────────────────────────────────────────────────────
 
 /**
- * Fetch the next queued task and lock it (set status = 'running').
- * Returns null if no queued tasks exist.
+ * Atomically claim the next queued task: highest priority, then FIFO. Uses
+ * `FOR UPDATE SKIP LOCKED` inside a transaction so multiple concurrent workers
+ * never claim the same row. Sets status='running' + emits task.status before
+ * returning. Returns null if nothing is queued.
  */
 export async function dequeueTask(): Promise<QueuedTask | null> {
-  // In a single-worker MVP, a simple findFirst + update is fine.
-  // For multi-worker, we'd use a transaction or SKIP LOCKED.
-  // Higher priority first (Team offices enqueue at priority 10), then FIFO.
-  const task = await prisma.task.findFirst({
-    where: { status: 'queued' },
-    orderBy: [{ priority: 'desc' }, { createdAt: 'asc' }],
+  // Raw SQL for the atomic claim — Prisma has no SKIP LOCKED primitive.
+  const claimed = await prisma.$transaction(async (tx) => {
+    const rows = await tx.$queryRawUnsafe<Array<{ id: string; officeId: string; prompt: string }>>(
+      `SELECT id, "officeId", prompt
+         FROM "Task"
+        WHERE status = 'queued'
+        ORDER BY priority DESC, "createdAt" ASC
+        LIMIT 1
+        FOR UPDATE SKIP LOCKED`,
+    );
+    const row = rows[0];
+    if (!row) return null;
+    await tx.task.update({ where: { id: row.id }, data: { status: 'running' } });
+    return row;
   });
-  if (!task) return null;
+  if (!claimed) return null;
 
-  // Lock it.
-  await prisma.task.update({
-    where: { id: task.id },
-    data: { status: 'running' },
-  });
-
-  // Emit the task.status → running event.
-  await persistTaskStatusEvent(task.id, task.officeId, 'running');
-
-  return { id: task.id, officeId: task.officeId, prompt: task.prompt };
+  await persistTaskStatusEvent(claimed.id, claimed.officeId, 'running');
+  return { id: claimed.id, officeId: claimed.officeId, prompt: claimed.prompt };
 }
 
 /**

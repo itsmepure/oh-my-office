@@ -58,6 +58,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Office not found' }, { status: 404 });
   }
 
+  // Concurrent-task cap: limit in-flight (queued|running) tasks per user by
+  // plan, protecting platform-key spend + queue fairness.
+  const callerPlan = await getPlan(userId);
+  const concurrentCap = callerPlan === 'TEAM' ? 10 : callerPlan === 'PRO' ? 3 : 1;
+  const inFlight = await prisma.task.count({
+    where: {
+      status: { in: ['queued', 'running'] },
+      office: { memberships: { some: { userId } } },
+    },
+  });
+  if (inFlight >= concurrentCap) {
+    return NextResponse.json(
+      { error: `You have ${inFlight} task(s) in progress (limit ${concurrentCap}). Wait for one to finish or upgrade.`, upgradeTo: callerPlan === 'FREE' ? 'PRO' : undefined },
+      { status: 429 },
+    );
+  }
+
   // Priority queue: Team offices get higher dequeue priority. Priority is based
   // on the OFFICE OWNER's plan (the pool/seat holder), not the runner.
   const office = await prisma.office.findUnique({
