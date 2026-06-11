@@ -59,17 +59,18 @@ describe('priority queue dequeue order', () => {
       data: { officeId, prompt: 'low2', status: 'queued', priority: 0 },
     });
 
-    // Expected dequeue order: high (p10) → low1 (p0, older) → low2 (p0, newer).
-    const first = await dequeueTask();
-    expect(first!.id).toBe(high.id);
-    await completeTask(first!.id, officeId, 'done');
-
-    const second = await dequeueTask();
-    expect(second!.id).toBe(low1.id);
-    await completeTask(second!.id, officeId, 'done');
-
-    const third = await dequeueTask();
-    expect(third!.id).toBe(low2.id);
-    await completeTask(third!.id, officeId, 'done');
+    // Expected RELATIVE order among our rows: high (p10) → low1 (p0, older) →
+    // low2 (p0, newer). Drain the whole queue and filter to our task ids so
+    // unrelated queued rows in a shared dev DB don't break the assertion.
+    const ourIds = new Set([low1.id, high.id, low2.id]);
+    const claimedOrder: string[] = [];
+    for (let i = 0; i < 50; i += 1) {
+      const t = await dequeueTask();
+      if (!t) break;
+      if (ourIds.has(t.id)) claimedOrder.push(t.id);
+      await completeTask(t.id, t.officeId, 'done');
+      if (claimedOrder.length === 3) break;
+    }
+    expect(claimedOrder).toEqual([high.id, low1.id, low2.id]);
   });
 });

@@ -27,6 +27,7 @@ model User {
   creditBalance     CreditBalance?
   creditLedger      CreditLedger[]
   llmKeys           LlmKey[]
+  cryptoPayments    CryptoPayment[]
 
   @@index([email])
 }
@@ -263,4 +264,25 @@ model LlmKey {
 
   @@unique([userId, officeId])
   @@index([userId])
+}
+
+// Crypto billing: USDC-on-Solana credit-pack payments (see CRYPTO_BILLING.md).
+// One row per payment attempt. `reference` is a fresh Solana pubkey attached to
+// the on-chain transfer so we can find + verify it without trusting the client.
+model CryptoPayment {
+  id             String    @id @default(uuid())
+  userId         String
+  reference      String    @unique // base58 Solana pubkey used as on-chain reference
+  credits        Int // credits granted on confirmation
+  expectedAmount String // USDC amount as a decimal string
+  status         String    @default("pending") // pending | confirmed | expired | failed
+  txSignature    String?   @unique // set once verified on-chain
+  network        String    @default("devnet")
+  createdAt      DateTime  @default(now())
+  confirmedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }

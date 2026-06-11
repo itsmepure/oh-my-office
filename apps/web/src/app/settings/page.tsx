@@ -4,7 +4,9 @@ import { getBalance, listLedger, getUsageSummary } from '@repo/db/credits';
 import { getEntitlements } from '@repo/db/entitlements';
 import { AppHeader } from '@/components/chrome/app-header';
 import { buildCheckoutLinks } from '@/lib/checkout';
+import { isCryptoBillingConfigured } from '@repo/db/crypto-billing';
 import { KeyManager } from './key-manager';
+import { CryptoBuy } from './crypto-buy';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +31,7 @@ export default async function SettingsPage() {
     getUsageSummary(session.user.id),
   ]);
   const CHECKOUT = buildCheckoutLinks(session.user.id, session.user.email);
+  const cryptoConfigured = isCryptoBillingConfigured();
 
   return (
     <div className="min-h-screen">
@@ -157,6 +160,14 @@ export default async function SettingsPage() {
             </ul>
           )}
         </section>
+
+        {/* Buy credits with USDC (Solana) — only when configured */}
+        {cryptoConfigured && (
+          <section className="mb-10">
+            <h2 className="eyebrow mb-3 text-[11px] text-content-muted">Buy credits with USDC (Solana)</h2>
+            <CryptoBuy />
+          </section>
+        )}
 
         {/* BYOK */}
         <section>

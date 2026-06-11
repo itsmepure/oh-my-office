@@ -45,3 +45,6 @@ coverage/
 # Curl cookie jars (session tokens)
 cookies.txt
 *.cookies
+
+# Devnet treasury keypair (NEVER commit)
+.devnet-treasury.json
