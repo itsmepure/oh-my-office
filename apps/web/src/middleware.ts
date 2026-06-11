@@ -24,7 +24,8 @@ const authMiddleware: any = auth((req) => {
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/templates') ||
     pathname.startsWith('/offices') ||
-    pathname.startsWith('/agents');
+    pathname.startsWith('/agents') ||
+    pathname.startsWith('/settings');
 
   if (isProtected && !isLoggedIn) {
     const loginUrl = new URL('/login', req.nextUrl.origin);

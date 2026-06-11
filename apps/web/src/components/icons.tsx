@@ -102,3 +102,7 @@ export function IconBox({ className }: IconProps) {
     className,
   );
 }
+
+export function IconCheck({ className }: IconProps) {
+  return base(<path d="M20 6 9 17l-5-5" />, className);
+}
