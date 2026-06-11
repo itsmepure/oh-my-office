@@ -112,3 +112,27 @@ M-crypto-6: gate + deploy (devnet mode), then later flip env to mainnet
 - Re-verify the security checklist against mainnet.
 - Tax note: no merchant-of-record — VAT/sales-tax handling is the operator's
   responsibility (documented trade-off vs Lemon Squeezy).
+
+## 9. Verification status (as of devnet deploy)
+
+VERIFIED:
+- Build + gate green; unit tests (pack catalog + config gating).
+- Live on VPS (devnet): POST /api/billing/crypto returns a valid Solana Pay URL
+  (correct treasury, amount, devnet USDC mint, unique reference); status poll
+  returns "pending".
+- On-chain verify logic written per the §3 security checklist
+  (findReference + validateTransfer: recipient/mint/amount/finalized + dedupe).
+
+NOT YET VERIFIED (deferred by decision):
+- A real on-chain USDC transfer crediting the account. Devnet faucet was dry /
+  rate-limited (public RPC 429, Helius needs a key). Decision: defer the live
+  transfer test to mainnet cutover — mainnet uses REAL USDC, so no faucet is
+  needed. At cutover, run one small real purchase end-to-end and confirm the
+  credit lands before announcing crypto billing.
+
+CUTOVER CHECKLIST (do before relying on crypto in prod):
+- [ ] Set mainnet env (network, mint, RPC with Helius key, real treasury).
+- [ ] Make ONE small real USDC purchase → confirm CryptoPayment.status=confirmed
+      + credits granted + ledger row (reason=purchase, agentRef=order:<sig>).
+- [ ] Confirm a replay of the same signature does NOT double-credit.
+- [ ] Confirm a wrong-amount / wrong-mint transfer is rejected (status=failed).
