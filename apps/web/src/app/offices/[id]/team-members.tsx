@@ -64,13 +64,13 @@ export function TeamMembers({ officeId, ownerId }: { officeId: string; ownerId: 
         {members.map((m) => (
           <li
             key={m.userId}
-            className="flex items-center justify-between border border-line bg-surface-2 px-3 py-2 text-sm"
+            className="flex items-center justify-between rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm"
           >
             <span className="min-w-0">
               <span className="text-content">{m.name}</span>{' '}
               <span className="font-mono text-xs text-content-faint">{m.email}</span>
               {m.role === 'owner' && (
-                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.1em] text-accent">owner</span>
+                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.1em] text-accent-bright">owner</span>
               )}
             </span>
             {m.role !== 'owner' && m.userId !== ownerId && (
@@ -78,7 +78,7 @@ export function TeamMembers({ officeId, ownerId }: { officeId: string; ownerId: 
                 type="button"
                 disabled={busy}
                 onClick={() => remove(m.userId)}
-                className="cursor-pointer border border-danger/40 px-2 py-0.5 text-xs text-danger transition hover:bg-danger/10 disabled:opacity-50"
+                className="cursor-pointer rounded-lg border border-danger/40 px-2.5 py-0.5 text-xs text-danger transition hover:bg-danger/10 disabled:opacity-50"
               >
                 Remove
               </button>
@@ -88,7 +88,7 @@ export function TeamMembers({ officeId, ownerId }: { officeId: string; ownerId: 
       </ul>
 
       {error && (
-        <div className="mb-2 border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">{error}</div>
+        <div className="mb-2 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">{error}</div>
       )}
       <div className="flex gap-2">
         <input
@@ -96,13 +96,13 @@ export function TeamMembers({ officeId, ownerId }: { officeId: string; ownerId: 
           onChange={(e) => setEmail(e.target.value)}
           placeholder="teammate@email.com"
           type="email"
-          className="flex-1 border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="flex-1 rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
         />
         <button
           type="button"
           disabled={busy || !email.includes('@')}
           onClick={add}
-          className="cursor-pointer bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-content-muted"
+          className="cursor-pointer rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-content-muted disabled:shadow-none"
         >
           Invite
         </button>

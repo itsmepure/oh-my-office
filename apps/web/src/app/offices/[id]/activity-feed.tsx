@@ -11,7 +11,7 @@ interface Props {
 }
 
 /** Short, stable color for an agent identity dot (deterministic by ref). */
-const AGENT_DOT = ['bg-accent', 'bg-success', 'bg-[#6aa3f7]', 'bg-[#c98bff]', 'bg-[#f7913a]'];
+const AGENT_DOT = ['bg-accent', 'bg-success', 'bg-accent3', 'bg-accent2', 'bg-warning'];
 
 export function ActivityFeed({ officeId, agents }: Props) {
   const records = useRealtimeStore((s) => s.records);
@@ -57,7 +57,7 @@ export function ActivityFeed({ officeId, agents }: Props) {
       </div>
 
       {lastError && (
-        <div className="mb-3 border border-danger/40 bg-danger/10 p-2 text-sm text-danger">{lastError}</div>
+        <div className="mb-3 rounded-lg border border-danger/40 bg-danger/10 p-2 text-sm text-danger">{lastError}</div>
       )}
 
       {/* Per-agent live status chips. */}
@@ -68,9 +68,9 @@ export function ActivityFeed({ officeId, agents }: Props) {
             return (
               <span
                 key={agentRef}
-                className="inline-flex items-center gap-1.5 border border-line bg-surface-2 px-2 py-0.5 font-mono text-[10px] text-content-muted"
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 px-2 py-0.5 font-mono text-[10px] text-content-muted"
               >
-                <span className={`h-1.5 w-1.5 ${dot}`} aria-hidden />
+                <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
                 {name}: <span className="text-content">{state}</span>
               </span>
             );
@@ -79,7 +79,7 @@ export function ActivityFeed({ officeId, agents }: Props) {
       )}
 
       {records.length === 0 ? (
-        <p className="border border-dashed border-line p-4 text-xs text-content-muted">
+        <p className="rounded-xl border border-dashed border-line p-4 text-xs text-content-muted">
           No events yet. Queue a task, or wait for replay if this office already has tasks.
         </p>
       ) : (
@@ -91,10 +91,10 @@ export function ActivityFeed({ officeId, agents }: Props) {
             return (
               <li
                 key={record.id ?? `${event.taskId}-${event.ts}-${idx}`}
-                className="border border-line bg-surface-2 p-2.5 text-sm"
+                className="rounded-lg border border-line bg-surface-2 p-2.5 text-sm"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs font-semibold text-accent">{event.type}</span>
+                  <span className="font-mono text-xs font-semibold text-accent-bright">{event.type}</span>
                   <time className="shrink-0 font-mono text-[10px] text-content-faint">
                     {new Date(event.ts).toLocaleTimeString()}
                   </time>
@@ -103,12 +103,12 @@ export function ActivityFeed({ officeId, agents }: Props) {
                 <div className="mt-1 flex items-center gap-1.5 font-mono text-[10px] text-content-muted">
                   {id ? (
                     <>
-                      <span className={`h-1.5 w-1.5 ${id.dot}`} aria-hidden />
+                      <span className={`h-1.5 w-1.5 rounded-full ${id.dot}`} aria-hidden />
                       <span className="text-content">{id.name}</span>
                     </>
                   ) : (
                     <>
-                      <span className="h-1.5 w-1.5 bg-content-faint" aria-hidden />
+                      <span className="h-1.5 w-1.5 rounded-full bg-content-faint" aria-hidden />
                       <span className="text-content-muted">System</span>
                       <span className="text-content-faint">· task {event.taskId.slice(0, 8)}</span>
                     </>

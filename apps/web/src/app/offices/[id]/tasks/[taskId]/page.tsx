@@ -14,15 +14,15 @@ export const dynamic = 'force-dynamic';
 function statusBadgeClass(status: string): string {
   switch (status) {
     case 'done':
-      return 'bg-success/10 text-success';
+      return 'border border-success/40 bg-success/10 text-success';
     case 'failed':
-      return 'bg-danger/10 text-danger';
+      return 'border border-danger/40 bg-danger/10 text-danger';
     case 'running':
-      return 'bg-accent/10 text-accent';
+      return 'border border-accent3/40 bg-accent3/10 text-accent3';
     case 'queued':
-      return 'bg-accent/10 text-accent-dim';
+      return 'border border-accent/40 bg-accent/10 text-accent';
     default:
-      return 'bg-surface-2 text-content-muted';
+      return 'border border-line bg-surface-2 text-content-muted';
   }
 }
 
@@ -83,7 +83,7 @@ export default async function TaskDetailPage({
         </header>
 
         {/* Prompt */}
-        <section className="card p-4 sm:p-6">
+        <section className="card rounded-xl p-4 sm:p-6">
           <h2 className="eyebrow text-content-muted">
             Prompt
           </h2>
@@ -103,13 +103,13 @@ export default async function TaskDetailPage({
         </section>
 
         {/* Artifacts */}
-        <section className="card p-4 sm:p-6">
+        <section className="card rounded-xl p-4 sm:p-6">
           <h2 className="mb-3 text-lg font-semibold text-content">
             Artifacts{' '}
             <span className="text-sm font-normal text-content-muted">({task.artifacts.length})</span>
           </h2>
           {task.artifacts.length === 0 ? (
-            <p className="rounded-md border border-dashed border-line p-4 text-sm text-content-muted">
+            <p className="rounded-xl border border-dashed border-line p-4 text-sm text-content-muted">
               No artifacts produced. Artifacts appear here when the task completes successfully.
             </p>
           ) : (
@@ -118,17 +118,17 @@ export default async function TaskDetailPage({
                 <li
                   key={a.id}
                   data-testid="artifact-row"
-                  className="rounded-md border border-line bg-surface-2 p-3"
+                  className="rounded-lg border border-line bg-surface-2 p-3"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-mono text-sm font-medium text-content">{a.name}</span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <span className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase text-content-muted">
+                      <span className="rounded-md border border-accent3/30 bg-accent3/10 px-1.5 py-0.5 font-mono text-[10px] uppercase text-accent3">
                         {a.type}
                       </span>
                       <a
                         href={`/api/tasks/${taskId}/artifacts/${a.id}/download`}
-                        className="cursor-pointer border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-content-muted transition hover:border-accent/50 hover:text-content"
+                        className="cursor-pointer rounded-lg border border-line px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-content-muted transition hover:border-line-strong hover:text-content"
                       >
                         Download
                       </a>
@@ -150,13 +150,13 @@ export default async function TaskDetailPage({
         </section>
 
         {/* Activity log */}
-        <section className="card p-4 sm:p-6">
+        <section className="card rounded-xl p-4 sm:p-6">
           <h2 className="mb-3 text-lg font-semibold text-content">
             Activity log{' '}
             <span className="text-sm font-normal text-content-muted">({task.events.length})</span>
           </h2>
           {task.events.length === 0 ? (
-            <p className="rounded-md border border-dashed border-line p-4 text-sm text-content-muted">
+            <p className="rounded-xl border border-dashed border-line p-4 text-sm text-content-muted">
               No events recorded for this task.
             </p>
           ) : (
@@ -165,7 +165,7 @@ export default async function TaskDetailPage({
                 <li
                   key={`${ev.taskId}-${ev.ts}-${idx}`}
                   data-testid="activity-log-row"
-                  className="rounded-md border border-line bg-surface-2 p-3 text-sm"
+                  className="rounded-lg border border-line bg-surface-2 p-3 text-sm"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-medium text-content">{eventLabel(ev.type)}</span>

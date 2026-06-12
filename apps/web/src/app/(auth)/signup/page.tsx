@@ -53,20 +53,29 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-bg p-8">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg p-8">
+      <div className="hero-glow" />
       <form
         onSubmit={onSubmit}
-        className="w-full max-w-sm space-y-4 rounded-md border border-line bg-surface p-6 shadow-sm"
+        className="card relative z-10 w-full max-w-sm space-y-4 rounded-2xl p-7 shadow-lg"
       >
-        <h1 className="text-2xl font-bold text-content">Create account</h1>
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gradient font-mono text-sm font-bold text-accent-fg shadow-glow">
+            {'>'}
+          </span>
+          <span className="font-mono text-sm font-semibold tracking-tight text-content">
+            Open<span className="text-gradient-brand">Office</span>
+          </span>
+        </div>
+        <h1 className="text-2xl font-semibold tracking-tight text-content">Create account</h1>
 
         {error && (
-          <div role="alert" className="rounded-md border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+          <div role="alert" className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
             {error}
           </div>
         )}
 
-        <label className="block space-y-1">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-content">Name</span>
           <input
             type="text"
@@ -74,12 +83,12 @@ export default function SignupPage() {
             maxLength={100}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
             autoComplete="name"
           />
         </label>
 
-        <label className="block space-y-1">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-content">Email</span>
           <input
             type="email"
@@ -87,12 +96,12 @@ export default function SignupPage() {
             maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
             autoComplete="email"
           />
         </label>
 
-        <label className="block space-y-1">
+        <label className="block space-y-1.5">
           <span className="text-sm font-medium text-content">Password</span>
           <input
             type="password"
@@ -101,23 +110,23 @@ export default function SignupPage() {
             maxLength={200}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
             autoComplete="new-password"
           />
-          <span className="text-xs text-content-muted">Minimum 8 characters.</span>
+          <span className="text-xs text-content-faint">Minimum 8 characters.</span>
         </label>
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-bright disabled:opacity-50"
+          className="bg-brand-gradient w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:opacity-50 disabled:shadow-none"
         >
           {submitting ? 'Creating…' : 'Sign up'}
         </button>
 
         <p className="text-center text-sm text-content-muted">
           Already have an account?{' '}
-          <a href="/login" className="text-accent hover:underline">
+          <a href="/login" className="font-medium text-accent-bright hover:underline">
             Log in
           </a>
         </p>

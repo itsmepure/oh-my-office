@@ -125,7 +125,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
         <input
           type="text" required minLength={1} maxLength={120}
           value={name} onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           placeholder="e.g. Senior Architect"
         />
       </label>
@@ -135,7 +135,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
         <input
           type="text" required minLength={1} maxLength={80}
           value={role} onChange={(e) => setRole(e.target.value)}
-          className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           placeholder="e.g. Architect, Tester, DevOps"
         />
       </label>
@@ -145,7 +145,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
         <textarea
           required minLength={1} maxLength={4000} rows={6}
           value={systemPrompt} onChange={(e) => setSystemPrompt(e.target.value)}
-          className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm font-mono text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm font-mono text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           placeholder="You are a..."
         />
       </label>
@@ -157,9 +157,9 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
           {AGENT_TOOL_WHITELIST.map((tool) => (
             <label
               key={tool}
-              className={`cursor-pointer rounded-md border px-2.5 py-1 text-xs font-mono transition ${
+              className={`cursor-pointer rounded-lg border px-2.5 py-1 text-xs font-mono transition ${
                 tools.includes(tool)
-                  ? 'border-accent bg-accent/10 text-accent'
+                  ? 'border-accent bg-accent/10 text-accent-bright'
                   : 'border-line bg-surface-2 text-content-muted hover:border-accent/60'
               }`}
             >
@@ -182,7 +182,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
           <input
             type="text"
             value={model} onChange={(e) => setModel(e.target.value)}
-            className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm font-mono text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm font-mono text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           />
         </label>
         <label className="block space-y-1">
@@ -190,7 +190,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
           <input
             type="number" step={0.1} min={0} max={2}
             value={temperature} onChange={(e) => setTemperature(parseFloat(e.target.value) || 0)}
-            className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           />
         </label>
       </div>
@@ -216,7 +216,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
                 <input
                   type="text" placeholder="Doc title" maxLength={200}
                   value={doc.title} onChange={(e) => updateDoc(idx, 'title', e.target.value)}
-                  className="flex-1 rounded-md border border-line bg-surface-2 px-2 py-1 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+                  className="flex-1 rounded-lg border border-line bg-surface-2 px-2 py-1 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
                 />
                 <button
                   type="button" onClick={() => removeDoc(idx)}
@@ -228,7 +228,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
               <textarea
                 rows={3} placeholder="Doc content (markdown)" maxLength={10000}
                 value={doc.content} onChange={(e) => updateDoc(idx, 'content', e.target.value)}
-                className="w-full rounded-md border border-line bg-surface-2 px-2 py-1 text-sm font-mono text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="w-full rounded-lg border border-line bg-surface-2 px-2 py-1 text-sm font-mono text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
               />
             </div>
           ))}
@@ -245,7 +245,7 @@ export function AgentBuilderForm({ initial, agentId, canUseKnowledge = true }: P
 
       <button
         type="submit" disabled={submitting}
-        className="w-full cursor-pointer rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright disabled:opacity-50"
+        className="w-full cursor-pointer rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:opacity-50 disabled:shadow-none"
       >
         {submitting ? 'Saving…' : isEdit ? 'Update agent' : 'Create agent'}
       </button>

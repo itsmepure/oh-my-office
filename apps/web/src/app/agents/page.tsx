@@ -27,13 +27,13 @@ export default async function AgentsPage() {
           <div className="flex gap-3">
             <Link
               href="/dashboard"
-              className="rounded-md border border-line bg-surface px-3 py-1.5 text-sm font-medium text-content-muted hover:bg-surface-2 hover:text-content"
+              className="rounded-lg border border-line bg-surface/60 px-4 py-2 text-sm font-medium text-content-muted transition hover:border-line-strong hover:text-content"
             >
               ← Dashboard
             </Link>
             <Link
               href="/agents/new"
-              className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-bright"
+              className="rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
             >
               Create agent
             </Link>
@@ -41,7 +41,7 @@ export default async function AgentsPage() {
         </header>
 
         {agents.length === 0 ? (
-          <div className="border border-dashed border-line bg-surface p-12 text-center">
+          <div className="card rounded-2xl border border-dashed border-line p-12 text-center">
             <p className="font-mono text-sm text-content">No agents yet.</p>
             <p className="mx-auto mt-2 max-w-md text-sm text-content-muted">
               Your custom AI agents live here. Build one, then add it to an office
@@ -49,7 +49,7 @@ export default async function AgentsPage() {
             </p>
             <Link
               href="/agents/new"
-              className="mt-6 inline-block bg-accent px-5 py-2.5 text-sm font-medium text-bg transition hover:bg-accent-bright"
+              className="mt-6 inline-block rounded-lg bg-brand-gradient px-5 py-2.5 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
             >
               + Create agent
             </Link>
@@ -59,7 +59,7 @@ export default async function AgentsPage() {
             {agents.map((a) => (
               <li
                 key={a.id}
-                className="rounded-md border border-line bg-surface p-4 shadow-sm"
+                className="card card-hover rounded-xl p-4"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -69,13 +69,13 @@ export default async function AgentsPage() {
                   <div className="flex gap-1">
                     <Link
                       href={`/agents/${a.id}/edit`}
-                      className="rounded-md border border-line bg-surface px-2 py-0.5 text-xs text-content-muted hover:bg-surface-2 hover:text-content"
+                      className="rounded-lg border border-line bg-surface/60 px-2.5 py-0.5 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
                     >
                       Edit
                     </Link>
                     <Link
                       href={`/agents/${a.id}`}
-                      className="rounded-md bg-surface-2 px-2 py-0.5 text-xs text-content-muted hover:bg-surface"
+                      className="rounded-lg bg-surface-2 px-2.5 py-0.5 text-xs text-content-muted transition hover:text-content"
                     >
                       View
                     </Link>

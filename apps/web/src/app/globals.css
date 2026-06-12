@@ -3,26 +3,57 @@
 @tailwind utilities;
 
 /*
- * Terminal theme — FLAT + BOXY. True terminal aesthetic:
- *  - sharp corners everywhere (no border-radius)
- *  - flat solid fills (no gradients, no glow, no drop shadows)
- *  - depth comes ONLY from 1px borders and surface color steps
- *  - monospace-leaning, letter-spaced uppercase labels
+ * Modern dark SaaS theme — Linear / Vercel lineage.
+ *  - layered dark surfaces with real elevation (border + shadow steps)
+ *  - multi-hue accent system: indigo-violet primary, amber + cyan support
+ *  - soft radius scale, subtle gradients, focused glow on key surfaces
+ *  - depth is intentional: cards lift, primary actions carry a brand gradient
+ * Token NAMES are stable (consumed by tailwind.config.ts) — values modernized.
  */
 :root {
-  --bg: #0b0d14;          /* page background — flat near-black navy */
-  --surface: #11141f;     /* panels / cards */
-  --surface-2: #181c2b;   /* nested rows / inputs / hover */
-  --border: #2a3050;      /* 1px borders */
-  --border-strong: #3a4268;
-  --accent: #e0a33e;      /* amber — primary accent */
-  --accent-bright: #f5bb4d;
-  --accent-dim: #b9842f;
-  --text: #eceef6;        /* primary text */
-  --text-muted: #9aa1bd;  /* secondary text */
-  --text-faint: #7a82a0;  /* tertiary / captions — bumped for AA contrast */
-  --success: #46cfa6;
-  --danger: #ec6a59;
+  /* ── Surfaces (deep near-black with a cool cast) ── */
+  --bg: #07080c;            /* page background */
+  --bg-soft: #0a0c12;       /* ambient panels / hero wash base */
+  --surface: #0f1118;       /* cards / panels */
+  --surface-2: #161922;     /* nested rows / inputs / hover */
+  --surface-3: #1e222e;     /* raised / active nested */
+
+  /* ── Borders ── */
+  --border: #232734;        /* default 1px hairline */
+  --border-strong: #333949; /* emphasized dividers / focus borders */
+
+  /* ── Primary accent: indigo → violet ── */
+  --accent: #6e6bf4;
+  --accent-bright: #8b89f8;
+  --accent-dim: #5451d6;
+  --on-accent: #ffffff;     /* foreground on filled accent surfaces */
+
+  /* ── Secondary / tertiary hues (variety, semantics) ── */
+  --accent-2: #e0a33e;      /* amber — highlights, credits, warmth */
+  --accent-2-bright: #f5bb4d;
+  --accent-3: #3ec9d6;      /* cyan — info, links, live signals */
+  --accent-3-bright: #5fdce8;
+
+  /* ── Text ── */
+  --text: #f3f4f9;          /* primary */
+  --text-muted: #aab1c9;    /* secondary (AA on surfaces) */
+  --text-faint: #7c84a0;    /* tertiary / captions */
+
+  /* ── Semantic ── */
+  --success: #3ecf8e;
+  --warning: #e0a33e;
+  --danger: #f0685a;
+
+  /* ── Brand gradients ── */
+  --gradient-brand: linear-gradient(135deg, #7c7af6 0%, #a855f7 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(110,107,244,0.16) 0%, rgba(168,85,247,0.10) 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+
+  /* ── Elevation (soft, diffused — dark-mode tuned) ── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px -4px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 40px -8px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 0 1px rgba(110,107,244,0.35), 0 8px 32px -8px rgba(110,107,244,0.45);
 }
 
 html {
@@ -32,32 +63,77 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
+  /* Ambient brand wash anchored top — adds modern depth without noise. */
+  background-image:
+    radial-gradient(60rem 40rem at 50% -16rem, rgba(110,107,244,0.10), transparent 70%),
+    radial-gradient(50rem 40rem at 100% 0%, rgba(168,85,247,0.06), transparent 60%);
+  background-attachment: fixed;
 }
 
 /*
- * Global focus-visible ring — accessibility (ui-ux-pro-max rule `focus-states`,
- * CRITICAL). Keyboard users get a clear 2px amber ring on every interactive
- * element; mouse clicks don't trigger it (focus-visible only). Square to match
- * the flat terminal aesthetic.
+ * Global focus-visible ring — accessibility (CRITICAL). Keyboard users get a
+ * clear 2px indigo ring on every interactive element; mouse clicks don't
+ * trigger it (focus-visible only). Rounded to match the modern radius scale.
  */
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--accent-bright);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /*
- * Flat panel — solid surface fill + 1px border. NO gradient, NO shadow,
- * NO glow, NO radius. The terminal box. Combine with Tailwind for padding.
+ * Card — elevated surface with hairline border, soft radius, and a faint
+ * top-edge sheen (gradient-surface) for depth. The product's base panel.
  */
 .card {
   background-color: var(--surface);
+  background-image: var(--gradient-surface);
   border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-sm);
 }
 .card-hover {
-  transition: border-color 0.12s ease, background-color 0.12s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 .card-hover:hover {
-  border-color: var(--accent);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Accent-lit card — for highlighted / "most popular" / featured surfaces. */
+.card-glow {
+  border-color: rgba(110,107,244,0.45);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Brand gradient fill — primary CTAs, hero marks. */
+.bg-brand-gradient {
+  background-image: var(--gradient-brand);
+  color: var(--on-accent);
+}
+
+/* Gradient text — hero headline highlights. */
+.text-gradient-brand {
+  background-image: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/*
+ * Hero glow — absolutely-positioned ambient brand light. Drop into a
+ * `relative overflow-hidden` parent; it paints a soft indigo/violet bloom
+ * behind hero content and featured panels. Pointer-events none so it never
+ * blocks interaction.
+ */
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(40rem 22rem at 15% -10%, rgba(110,107,244,0.20), transparent 60%),
+    radial-gradient(34rem 20rem at 85% 0%, rgba(168,85,247,0.14), transparent 60%);
 }
 
 /* Uppercase letter-spaced label — the repeating rhythm element. */
@@ -67,26 +143,28 @@ body {
   letter-spacing: 0.14em;
 }
 
-/* Thin square scrollbars to match the terminal aesthetic. */
+/* Thin rounded scrollbars matching the modern aesthetic. */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--border-strong) transparent;
 }
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
 }
 *::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--border-strong);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 *::-webkit-scrollbar-track {
   background: transparent;
 }
 
 /*
- * Respect prefers-reduced-motion (ui-ux-pro-max rule `reduced-motion`,
- * CRITICAL). Users who request less motion get near-instant transitions
- * instead of animations.
+ * Respect prefers-reduced-motion (CRITICAL). Users who request less motion get
+ * near-instant transitions and no transforms.
  */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -96,5 +174,8 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .card-hover:hover {
+    transform: none;
   }
 }

@@ -84,12 +84,12 @@ export function KeyManager() {
   return (
     <div>
       {hasKey ? (
-        <div className="mb-4 border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
+        <div className="mb-4 rounded-lg border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
           BYOK active — your offices run on your own key, so our agents cost{' '}
           <span className="font-semibold">zero credits</span>.
         </div>
       ) : (
-        <div className="mb-4 border border-line bg-surface-2 px-3 py-2 text-sm text-content-muted">
+        <div className="mb-4 rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content-muted">
           No key attached. Our agents run on the platform key and spend credits.
           Add your own key below to run them for free.
         </div>
@@ -103,7 +103,7 @@ export function KeyManager() {
           {keys.map((k) => (
             <li
               key={k.id}
-              className="flex items-center justify-between border border-line bg-surface-2 px-3 py-2 text-sm"
+              className="flex items-center justify-between rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm"
             >
               <span className="font-mono text-content">
                 {k.provider}
@@ -119,7 +119,7 @@ export function KeyManager() {
                 type="button"
                 disabled={busy}
                 onClick={() => removeKey(k.id)}
-                className="cursor-pointer border border-danger/40 px-2 py-0.5 text-xs text-danger transition hover:bg-danger/10 disabled:opacity-50"
+                className="cursor-pointer rounded-lg border border-danger/40 px-2.5 py-0.5 text-xs text-danger transition hover:bg-danger/10 disabled:opacity-50"
               >
                 Remove
               </button>
@@ -129,10 +129,10 @@ export function KeyManager() {
       )}
 
       {/* Add form */}
-      <div className="space-y-3 border border-line bg-surface p-4">
+      <div className="card rounded-xl space-y-3 p-4">
         <p className="eyebrow text-[11px] text-content-muted">Add a key</p>
         {error && (
-          <div className="border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">
+          <div className="rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">
             {error}
           </div>
         )}
@@ -142,7 +142,7 @@ export function KeyManager() {
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full border border-line bg-surface-2 px-3 py-2 text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/40"
+              className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
             >
               <option value="deepseek">DeepSeek</option>
               <option value="openai">OpenAI-compatible</option>
@@ -154,7 +154,7 @@ export function KeyManager() {
               value={model}
               onChange={(e) => setModel(e.target.value)}
               placeholder="deepseek-v4-pro"
-              className="w-full border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
+              className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
             />
           </label>
         </div>
@@ -164,7 +164,7 @@ export function KeyManager() {
             value={baseUrl}
             onChange={(e) => setBaseUrl(e.target.value)}
             placeholder="https://api.deepseek.com"
-            className="w-full border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           />
         </label>
         <label className="block">
@@ -175,14 +175,14 @@ export function KeyManager() {
             onChange={(e) => setApiKey(e.target.value)}
             placeholder="sk-..."
             autoComplete="off"
-            className="w-full border border-line bg-surface-2 px-3 py-2 font-mono text-sm text-content placeholder:text-content-faint focus:outline-none focus:ring-2 focus:ring-accent/40"
+            className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 font-mono text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           />
         </label>
         <button
           type="button"
           disabled={busy || apiKey.trim().length < 8}
           onClick={addKey}
-          className="cursor-pointer bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-content-muted"
+          className="cursor-pointer rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-content-muted disabled:shadow-none"
         >
           {busy ? 'Saving…' : 'Save key'}
         </button>

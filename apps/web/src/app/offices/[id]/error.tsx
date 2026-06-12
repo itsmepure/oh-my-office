@@ -20,7 +20,7 @@ export default function OfficeError({
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg p-4">
-      <div className="max-w-md rounded-md border border-danger/40 bg-surface p-8 text-center shadow-sm">
+      <div className="card card-glow rounded-2xl max-w-md border-danger/40 p-8 text-center">
         <h1 className="text-2xl font-bold text-content">Something went wrong</h1>
         <p className="mt-2 text-sm text-content-muted">
           We couldn&apos;t load this office. This is usually temporary.
@@ -29,13 +29,13 @@ export default function OfficeError({
           <button
             type="button"
             onClick={reset}
-            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-bright"
+            className="rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
           >
             Try again
           </button>
           <Link
             href="/dashboard"
-            className="rounded-md border border-line bg-surface px-4 py-2 text-sm font-medium text-content-muted hover:bg-surface-2 hover:text-content"
+            className="rounded-lg border border-line bg-surface/60 px-4 py-2 text-sm font-medium text-content-muted transition hover:border-line-strong hover:text-content"
           >
             Back to dashboard
           </Link>

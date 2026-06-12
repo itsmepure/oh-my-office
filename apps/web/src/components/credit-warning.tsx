@@ -19,10 +19,10 @@ export function CreditWarning({
   const out = total <= 0;
   return (
     <div
-      className={`mb-4 flex flex-wrap items-center justify-between gap-3 border px-4 py-2.5 text-sm ${
+      className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-sm ${
         out
           ? 'border-danger/50 bg-danger/10 text-danger'
-          : 'border-accent/50 bg-accent/10 text-accent'
+          : 'border-accent2/50 bg-accent2/10 text-accent2'
       }`}
     >
       <span>
@@ -33,13 +33,13 @@ export function CreditWarning({
       <span className="flex shrink-0 gap-2">
         <Link
           href="/settings"
-          className="border border-current px-2.5 py-1 text-xs transition hover:opacity-80"
+          className="rounded-lg border border-current px-2.5 py-1 text-xs transition hover:opacity-80"
         >
           Add key
         </Link>
         <Link
           href="/settings"
-          className="border border-current px-2.5 py-1 text-xs transition hover:opacity-80"
+          className="rounded-lg border border-current px-2.5 py-1 text-xs transition hover:opacity-80"
         >
           Top up
         </Link>

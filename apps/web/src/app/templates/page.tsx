@@ -30,16 +30,16 @@ export default async function TemplatesPage() {
           </div>
           <Link
             href="/dashboard"
-            className="rounded-md border border-line bg-surface px-3 py-1.5 text-sm font-medium text-content-muted hover:bg-surface-2 hover:text-content"
+            className="rounded-lg border border-line bg-surface/60 px-4 py-2 text-sm font-medium text-content-muted transition hover:border-line-strong hover:text-content"
           >
             ← Dashboard
           </Link>
         </header>
 
         {templates.length === 0 ? (
-          <div className="rounded-md border border-dashed border-line bg-surface p-8 text-center text-sm text-content-muted">
+          <div className="card rounded-2xl border border-dashed border-line p-8 text-center text-sm text-content-muted">
             No templates available. Run{' '}
-            <code className="rounded-md bg-surface-2 px-1.5 py-0.5 text-accent font-mono">pnpm --filter @repo/db seed</code>{' '}
+            <code className="rounded-md bg-surface-2 px-1.5 py-0.5 text-accent-bright font-mono">pnpm --filter @repo/db seed</code>{' '}
             to populate the catalog.
           </div>
         ) : (
@@ -47,13 +47,13 @@ export default async function TemplatesPage() {
             {templates.map((t) => (
               <li
                 key={t.id}
-                className="rounded-md border border-line bg-surface p-6 shadow-sm"
+                className="card card-hover rounded-xl p-6"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h2 className="text-xl font-semibold text-content">{t.name}</h2>
-                      <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-medium text-content-muted">
+                      <span className="rounded-full border border-accent3/40 bg-accent3/10 px-2.5 py-0.5 text-xs font-medium text-accent3">
                         {t.category}
                       </span>
                     </div>
@@ -61,7 +61,7 @@ export default async function TemplatesPage() {
                   </div>
                   <Link
                     href={`/templates/${t.id}/new`}
-                    className="shrink-0 rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-bright"
+                    className="shrink-0 rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
                   >
                     Create office
                   </Link>
@@ -75,7 +75,7 @@ export default async function TemplatesPage() {
                   <ol className="mt-2 flex flex-wrap items-center gap-2 text-sm">
                     {t.workflow.map((step, idx) => (
                       <li key={step.order} className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/10 text-xs font-semibold text-accent">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-gradient text-xs font-semibold text-accent-fg shadow-sm">
                           {step.order}
                         </span>
                         <span className="font-medium text-content">{step.label}</span>
@@ -96,7 +96,7 @@ export default async function TemplatesPage() {
                     {t.agents.map((a) => (
                       <li
                         key={a.id}
-                        className="rounded-md border border-line bg-surface-2 p-3 text-sm"
+                        className="rounded-lg border border-line bg-surface-2 p-3 text-sm"
                       >
                         <div className="font-medium text-content">{a.name}</div>
                         {a.role && a.role !== a.name && (

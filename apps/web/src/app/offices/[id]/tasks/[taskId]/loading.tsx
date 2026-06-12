@@ -8,9 +8,9 @@ export default function TaskLoading() {
           <div className="h-4 w-32 rounded-md bg-surface-2" />
           <div className="h-8 w-1/2 rounded-md bg-surface-2" />
         </div>
-        <div className="h-28 rounded-md border border-line bg-surface" />
-        <div className="h-48 rounded-md border border-line bg-surface" />
-        <div className="h-48 rounded-md border border-line bg-surface" />
+        <div className="h-28 rounded-xl border border-line bg-surface" />
+        <div className="h-48 rounded-xl border border-line bg-surface" />
+        <div className="h-48 rounded-xl border border-line bg-surface" />
       </div>
     </main>
   );

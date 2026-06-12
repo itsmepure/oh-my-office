@@ -8,16 +8,18 @@ export default function TermsPage() {
     <div className="min-h-screen">
       <MarketingNav />
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="text-3xl font-medium tracking-tight text-content">Terms of Service</h1>
+        <p className="eyebrow text-[11px] text-accent-bright">Legal</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-content">Terms of Service</h1>
         <p className="mt-2 font-mono text-xs text-content-faint">Last updated: June 2026</p>
 
-        <div className="mt-8 space-y-6 text-sm leading-relaxed text-content-muted">
-          <p>
-            These Terms govern your use of OpenOffice (the &quot;Service&quot;). By creating an
-            account or using the Service you agree to them. If you do not agree, do not use
-            the Service. This is a baseline agreement and may be updated; material changes
-            will be announced in-app.
-          </p>
+        <div className="card mt-8 rounded-2xl p-8">
+          <div className="space-y-6 text-sm leading-relaxed text-content-muted">
+            <p>
+              These Terms govern your use of OpenOffice (the &quot;Service&quot;). By creating an
+              account or using the Service you agree to them. If you do not agree, do not use
+              the Service. This is a baseline agreement and may be updated; material changes
+              will be announced in-app.
+            </p>
 
           <Section title="1. The Service">
             OpenOffice lets you create workspaces (&quot;offices&quot;) in which AI agents run tasks
@@ -73,6 +75,7 @@ export default function TermsPage() {
           <Section title="9. Contact">
             Questions about these Terms: support@openoffice.local
           </Section>
+          </div>
         </div>
       </main>
       <MarketingFooter />
@@ -82,8 +85,8 @@ export default function TermsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <h2 className="text-base font-medium text-content">{title}</h2>
+    <div className="border-t border-line/60 pt-6 first:border-0 first:pt-0">
+      <h2 className="text-base font-semibold text-content">{title}</h2>
       <p className="mt-2">{children}</p>
     </div>
   );

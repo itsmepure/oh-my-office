@@ -26,7 +26,7 @@ export default async function EditAgentPage({
         <Link href="/agents" className="text-sm text-content-muted hover:underline">
           ← My Agents
         </Link>
-        <div className="rounded-md border border-line bg-surface p-6 shadow-sm">
+        <div className="card rounded-2xl p-6">
           <h1 className="text-2xl font-bold text-content">Edit agent</h1>
           <p className="mt-1 text-sm text-content-muted">
             Editing &ldquo;{agent.name}&rdquo;. Changes apply immediately and do

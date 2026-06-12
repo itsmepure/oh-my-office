@@ -45,7 +45,7 @@ export function WorkspaceFiles({ officeId }: { officeId: string }) {
         <button
           type="button"
           onClick={() => void refresh()}
-          className="cursor-pointer border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-accent/50 hover:text-content"
+          className="cursor-pointer rounded-lg border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
         >
           Refresh
         </button>
@@ -61,19 +61,19 @@ export function WorkspaceFiles({ officeId }: { officeId: string }) {
           <button
             type="button"
             onClick={() => void refresh()}
-            className="cursor-pointer border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-accent/50 hover:text-content"
+          className="cursor-pointer rounded-lg border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
           >
             Refresh
           </button>
           <a
             href={`/api/offices/${officeId}/files/zip`}
-            className="cursor-pointer bg-accent px-2.5 py-1 text-xs font-medium text-bg transition hover:bg-accent-bright"
+            className="cursor-pointer rounded-lg bg-brand-gradient px-2.5 py-1 text-xs font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
           >
             Download all (.zip)
           </a>
         </span>
       </div>
-      <ul className="divide-y divide-line border border-line">
+      <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line">
         {files.map((f) => (
           <li key={f.relPath} className="flex items-center justify-between bg-surface px-3 py-2 text-sm">
             <span className="min-w-0 truncate">
@@ -82,7 +82,7 @@ export function WorkspaceFiles({ officeId }: { officeId: string }) {
             </span>
             <a
               href={`/api/offices/${officeId}/files/download?path=${encodeURIComponent(f.relPath)}`}
-              className="shrink-0 cursor-pointer border border-line px-2 py-0.5 text-xs text-content-muted transition hover:border-accent/50 hover:text-content"
+              className="shrink-0 cursor-pointer rounded-lg border border-line px-2.5 py-0.5 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
             >
               Download
             </a>

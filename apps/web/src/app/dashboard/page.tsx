@@ -33,10 +33,10 @@ export default async function DashboardPage() {
   const templatesUsed = new Set(offices.map((o) => o.templateName)).size;
 
   const stats = [
-    { label: 'Offices', value: totalOffices, hint: 'workspaces you own', Icon: IconBuilding },
-    { label: 'Agents', value: totalAgents, hint: 'across all offices', Icon: IconUsers },
-    { label: 'Running', value: runningOffices, hint: 'tasks in progress', Icon: IconActivity },
-    { label: 'Templates', value: templatesUsed, hint: 'distinct recipes', Icon: IconLayers },
+    { label: 'Offices', value: totalOffices, hint: 'workspaces you own', Icon: IconBuilding, chip: 'border-accent/30 bg-accent/10 text-accent-bright' },
+    { label: 'Agents', value: totalAgents, hint: 'across all offices', Icon: IconUsers, chip: 'border-accent3/30 bg-accent3/10 text-accent3' },
+    { label: 'Running', value: runningOffices, hint: 'tasks in progress', Icon: IconActivity, chip: 'border-accent2/30 bg-accent2/10 text-accent2' },
+    { label: 'Templates', value: templatesUsed, hint: 'distinct recipes', Icon: IconLayers, chip: 'border-accent/30 bg-accent/10 text-accent-bright' },
   ];
 
   return (
@@ -49,8 +49,8 @@ export default async function DashboardPage() {
         {/* Hero */}
         <div className="mb-10">
           <p className="eyebrow text-[11px] text-content-muted">Agentic Workspace</p>
-          <h1 className="mt-2 text-4xl font-medium tracking-tight text-content">
-            Welcome back, <span className="text-accent">{session.user.name}</span>
+          <h1 className="mt-2 text-4xl font-semibold tracking-tight text-content">
+            Welcome back, <span className="text-gradient-brand">{session.user.name}</span>
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-content-muted">
             Your AI offices at a glance. Spin up a team from a template, then watch
@@ -60,11 +60,13 @@ export default async function DashboardPage() {
 
         {/* Stats */}
         <section className="mb-12 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {stats.map(({ label, value, hint, Icon }) => (
-            <div key={label} className="card card-hover rounded-lg p-5">
+          {stats.map(({ label, value, hint, Icon, chip }) => (
+            <div key={label} className="card card-hover rounded-xl p-5">
               <div className="flex items-center justify-between">
                 <p className="eyebrow text-[11px] text-content-muted">{label}</p>
-                <Icon className="h-4 w-4 text-content-faint" />
+                <span className={`flex h-8 w-8 items-center justify-center rounded-lg border ${chip}`}>
+                  <Icon className="h-4 w-4" />
+                </span>
               </div>
               <p className="mt-3 text-4xl font-semibold tabular-nums text-content">
                 {value}
@@ -79,7 +81,7 @@ export default async function DashboardPage() {
           <div className="mb-5 flex items-end justify-between">
             <div>
               <h2 className="eyebrow text-[11px] text-content-muted">Office List</h2>
-              <p className="mt-1 text-lg font-medium text-content">
+              <p className="mt-1 text-lg font-semibold text-content">
                 Your offices{' '}
                 <span className="font-mono text-sm text-content-faint">
                   ({ent.officeCount}
@@ -90,7 +92,7 @@ export default async function DashboardPage() {
             {atCap ? (
               <Link
                 href="/settings"
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-accent/50 px-4 py-2 text-sm font-medium text-accent transition hover:bg-accent hover:text-bg"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-accent/50 px-4 py-2 text-sm font-medium text-accent-bright transition hover:bg-accent/10"
                 title={`Your plan allows ${ent.limits.maxOffices} offices. Upgrade for more.`}
               >
                 <IconPlus className="h-4 w-4" />
@@ -99,7 +101,7 @@ export default async function DashboardPage() {
             ) : (
               <Link
                 href="/templates"
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg transition hover:bg-accent-bright"
+                className="bg-brand-gradient inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
               >
                 <IconPlus className="h-4 w-4" />
                 New office
@@ -108,8 +110,8 @@ export default async function DashboardPage() {
           </div>
 
           {offices.length === 0 ? (
-            <div className="card rounded-lg border-dashed p-16 text-center">
-              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface-2 text-content-muted">
+            <div className="card rounded-xl border-dashed p-16 text-center">
+              <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-accent/10 text-accent-bright">
                 <IconBox className="h-6 w-6" />
               </span>
               <p className="mt-4 font-mono text-sm text-content">No offices yet.</p>
@@ -119,7 +121,7 @@ export default async function DashboardPage() {
               </p>
               <Link
                 href="/templates"
-                className="mt-6 inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-accent/50 px-5 py-2.5 text-sm font-medium text-accent transition hover:bg-accent hover:text-bg"
+                className="bg-brand-gradient mt-6 inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
               >
                 Browse templates
                 <IconArrowRight className="h-4 w-4" />
@@ -131,15 +133,15 @@ export default async function DashboardPage() {
                 <li key={o.id}>
                   <Link
                     href={`/offices/${o.id}`}
-                    className="card card-hover group block h-full cursor-pointer rounded-lg p-5"
+                    className="card card-hover group block h-full cursor-pointer rounded-xl p-5"
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface-2 text-accent">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/30 bg-accent/10 text-accent-bright">
                         <IconBuilding className="h-[18px] w-[18px]" />
                       </span>
                       <StatusPill status={o.status} />
                     </div>
-                    <h3 className="mt-4 font-medium leading-tight text-content transition group-hover:text-accent">
+                    <h3 className="mt-4 font-semibold leading-tight text-content transition group-hover:text-accent-bright">
                       {o.name}
                     </h3>
                     <p className="mt-1 font-mono text-xs text-content-muted">
@@ -157,7 +159,7 @@ export default async function DashboardPage() {
                           </span>
                         ))}
                       </div>
-                      <IconArrowRight className="h-4 w-4 text-content-faint transition group-hover:translate-x-0.5 group-hover:text-accent" />
+                      <IconArrowRight className="h-4 w-4 text-content-faint transition group-hover:translate-x-0.5 group-hover:text-accent-bright" />
                     </div>
                   </Link>
                 </li>
@@ -168,9 +170,9 @@ export default async function DashboardPage() {
               <li>
                 <Link
                   href="/templates"
-                  className="card-hover group flex h-full min-h-[168px] cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-line p-5 text-center transition hover:border-accent/50"
+                  className="card-hover group flex h-full min-h-[168px] cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-line p-5 text-center transition hover:border-accent/50"
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-md border border-line bg-surface-2 text-content-muted transition group-hover:text-accent">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-surface-2 text-content-muted transition group-hover:border-accent/30 group-hover:bg-accent/10 group-hover:text-accent-bright">
                     <IconPlus className="h-[18px] w-[18px]" />
                   </span>
                   <p className="mt-3 text-sm font-medium text-content-muted transition group-hover:text-content">
@@ -191,10 +193,12 @@ export default async function DashboardPage() {
 function StatusPill({ status }: { status: string }) {
   const styles =
     status === 'running'
-      ? 'border-accent/40 bg-accent/10 text-accent'
+      ? 'border-accent3/40 bg-accent3/10 text-accent3'
       : status === 'done'
         ? 'border-success/40 bg-success/10 text-success'
-        : 'border-line bg-surface-2 text-content-muted';
+        : status === 'failed'
+          ? 'border-danger/40 bg-danger/10 text-danger'
+          : 'border-line bg-surface-2 text-content-muted';
   return (
     <span
       className={`shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.1em] ${styles}`}

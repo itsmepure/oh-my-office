@@ -8,15 +8,15 @@ import type { TaskSummaryView } from '@repo/shared';
 function statusBadgeClass(status: string): string {
   switch (status) {
     case 'done':
-      return 'bg-success/10 text-success';
+      return 'border border-success/40 bg-success/10 text-success';
     case 'failed':
-      return 'bg-danger/10 text-danger';
+      return 'border border-danger/40 bg-danger/10 text-danger';
     case 'running':
-      return 'bg-accent/10 text-accent';
+      return 'border border-accent3/40 bg-accent3/10 text-accent3';
     case 'queued':
-      return 'bg-accent/10 text-accent';
+      return 'border border-accent/40 bg-accent/10 text-accent';
     default:
-      return 'bg-surface-2 text-content-muted';
+      return 'border border-line bg-surface-2 text-content-muted';
   }
 }
 
@@ -44,7 +44,7 @@ export function TaskHistory({
       </p>
 
       {tasks.length === 0 ? (
-        <p className="rounded-md border border-dashed border-line p-4 text-sm text-content-muted">
+        <p className="rounded-xl border border-dashed border-line p-4 text-sm text-content-muted">
           No tasks yet. Queue one to get started.
         </p>
       ) : (
@@ -53,7 +53,7 @@ export function TaskHistory({
             <li key={t.id} data-testid="task-history-row" data-task-id={t.id}>
               <Link
                 href={`/offices/${officeId}/tasks/${t.id}`}
-                className="block rounded-md border border-line bg-surface-2 p-3 transition hover:border-accent hover:bg-surface cursor-pointer"
+                className="block rounded-lg border border-line bg-surface-2 p-3 transition hover:border-accent/60 hover:bg-surface cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-3">
                   <p className="min-w-0 flex-1 truncate text-sm font-medium text-content">

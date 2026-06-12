@@ -32,14 +32,14 @@ export function ProfileMenu({ name, email, signOutAction }: ProfileMenuProps) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label="Account menu"
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface-2 text-sm font-semibold text-accent transition hover:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
+        className="flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface-2 text-sm font-semibold text-accent-bright transition hover:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/40"
       >
         {initial}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-md border border-line bg-surface shadow-lg shadow-black/40">
-          <div className="border-b border-line px-3 py-3">
+        <div className="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-xl border border-line bg-surface shadow-lg shadow-black/40">
+          <div className="border-b border-line/70 px-3 py-3">
             <p className="truncate text-sm font-medium text-content">{name}</p>
             <p className="truncate text-xs text-content-muted">{email}</p>
           </div>

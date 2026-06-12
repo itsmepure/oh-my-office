@@ -112,7 +112,7 @@ export default async function OfficeDetailPage({
             {office.agents.length > 0 ? (
               <PixelOffice agents={office.agents} />
             ) : (
-              <div className="flex h-[300px] items-center justify-center rounded-md border border-dashed border-line text-center text-sm text-content-muted">
+              <div className="flex h-[300px] items-center justify-center rounded-xl border border-dashed border-line text-center text-sm text-content-muted">
                 Add at least one agent to see the pixel office.
               </div>
             )}
@@ -174,8 +174,8 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="card rounded-lg">
-      <div className="flex items-center gap-2 border-b border-line px-4 py-2.5 text-content-muted">
+    <section className="card rounded-xl">
+      <div className="flex items-center gap-2 border-b border-line/70 px-4 py-2.5 text-content-muted">
         {icon}
         <h2 className="eyebrow text-[11px]">{label}</h2>
       </div>
@@ -187,7 +187,7 @@ function Panel({
 function StatusPill({ status }: { status: string }) {
   const styles =
     status === 'running'
-      ? 'border-accent/40 bg-accent/10 text-accent'
+      ? 'border-accent3/40 bg-accent3/10 text-accent3'
       : status === 'done'
         ? 'border-success/40 bg-success/10 text-success'
         : 'border-line bg-surface-2 text-content-muted';

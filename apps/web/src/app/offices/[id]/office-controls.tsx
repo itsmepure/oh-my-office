@@ -66,20 +66,20 @@ export function OfficeControls({ officeId, name }: { officeId: string; name: str
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoFocus
-          className="border border-line bg-surface-2 px-2 py-1 text-sm text-content focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="rounded-lg border border-line bg-surface-2 px-2 py-1 text-sm text-content transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
         />
         <button
           type="button"
           onClick={() => void save()}
           disabled={busy}
-          className="cursor-pointer bg-accent px-2.5 py-1 text-xs font-medium text-bg transition hover:bg-accent-bright disabled:opacity-50"
+          className="cursor-pointer rounded-lg bg-brand-gradient px-2.5 py-1 text-xs font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:opacity-50"
         >
           Save
         </button>
         <button
           type="button"
           onClick={() => { setEditing(false); setValue(name); }}
-          className="cursor-pointer border border-line px-2.5 py-1 text-xs text-content-muted transition hover:text-content"
+          className="cursor-pointer rounded-lg border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
         >
           Cancel
         </button>
@@ -96,14 +96,14 @@ export function OfficeControls({ officeId, name }: { officeId: string; name: str
           type="button"
           onClick={() => void remove()}
           disabled={busy}
-          className="cursor-pointer bg-danger px-2.5 py-1 text-xs font-medium text-bg transition hover:opacity-90 disabled:opacity-50"
+          className="cursor-pointer rounded-lg bg-danger px-2.5 py-1 text-xs font-semibold text-accent-fg transition hover:opacity-90 disabled:opacity-50"
         >
           {busy ? 'Deleting…' : 'Delete'}
         </button>
         <button
           type="button"
           onClick={() => setConfirming(false)}
-          className="cursor-pointer border border-line px-2.5 py-1 text-xs text-content-muted transition hover:text-content"
+          className="cursor-pointer rounded-lg border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
         >
           Cancel
         </button>
@@ -116,14 +116,14 @@ export function OfficeControls({ officeId, name }: { officeId: string; name: str
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="cursor-pointer border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-accent/50 hover:text-content"
+        className="cursor-pointer rounded-lg border border-line px-2.5 py-1 text-xs text-content-muted transition hover:border-line-strong hover:text-content"
       >
         Rename
       </button>
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="cursor-pointer border border-danger/40 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/10"
+        className="cursor-pointer rounded-lg border border-danger/40 px-2.5 py-1 text-xs text-danger transition hover:bg-danger/10"
       >
         Delete
       </button>

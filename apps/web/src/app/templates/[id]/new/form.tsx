@@ -62,7 +62,7 @@ export function CreateOfficeForm({ templateId, defaultName }: Props) {
           maxLength={120}
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-md border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
+          className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-content placeholder:text-content-faint transition focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/30"
           placeholder="e.g. My Dev Office"
         />
       </label>
@@ -70,7 +70,7 @@ export function CreateOfficeForm({ templateId, defaultName }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-bright disabled:opacity-50"
+        className="w-full rounded-lg bg-brand-gradient px-4 py-2 text-sm font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:opacity-50 disabled:shadow-none"
       >
         {submitting ? 'Creating…' : 'Create office'}
       </button>

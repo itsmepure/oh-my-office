@@ -73,10 +73,10 @@ export function ManageOfficeAgents({ office, myAgents }: Props) {
         </p>
         {addable.length > 0 && (
           <details className="relative">
-            <summary className="cursor-pointer rounded-md border border-line bg-surface px-3 py-1.5 text-sm font-medium text-content-muted hover:bg-surface-2 hover:text-content transition">
+            <summary className="cursor-pointer rounded-lg border border-line bg-surface/60 px-3 py-1.5 text-sm font-medium text-content-muted hover:border-line-strong hover:text-content transition">
               + Add agent
             </summary>
-            <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border border-line bg-surface shadow-lg">
+            <div className="absolute right-0 z-10 mt-1 w-56 overflow-hidden rounded-xl border border-line bg-surface shadow-lg">
               <ul className="py-1 text-sm">
                 {addable.map((a) => (
                   <li key={a.id}>
@@ -98,7 +98,7 @@ export function ManageOfficeAgents({ office, myAgents }: Props) {
       </div>
 
       {error && (
-        <div className="mb-3 rounded-md border border-danger/40 bg-danger/10 p-2 text-xs text-danger">
+        <div className="mb-3 rounded-lg border border-danger/40 bg-danger/10 p-2 text-xs text-danger">
           {error}
         </div>
       )}
@@ -112,9 +112,9 @@ export function ManageOfficeAgents({ office, myAgents }: Props) {
           {office.agents.map((oa) => (
             <li
               key={oa.id}
-              className="flex items-start gap-3 rounded-md border border-line bg-surface-2 p-3"
+              className="flex items-start gap-3 rounded-lg border border-line bg-surface-2 p-3"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/10 text-sm font-semibold text-accent">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-sm font-semibold text-accent-fg shadow-sm">
                 {oa.stepOrder}
               </span>
               <div className="min-w-0 flex-1">
@@ -144,7 +144,7 @@ export function ManageOfficeAgents({ office, myAgents }: Props) {
                 type="button"
                 disabled={loading === oa.id}
                 onClick={() => handleRemove(oa.id)}
-                className="shrink-0 rounded-md border border-danger/40 bg-surface px-2 py-0.5 text-xs text-danger hover:bg-danger/10 cursor-pointer transition disabled:opacity-50"
+                className="shrink-0 rounded-lg border border-danger/40 bg-surface px-2.5 py-0.5 text-xs text-danger hover:bg-danger/10 cursor-pointer transition disabled:opacity-50"
               >
                 Remove
               </button>

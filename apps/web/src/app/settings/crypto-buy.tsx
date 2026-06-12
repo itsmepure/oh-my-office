@@ -94,7 +94,7 @@ export function CryptoBuy() {
 
   if (phase === 'confirmed') {
     return (
-      <div className="border border-success/40 bg-success/10 p-4 text-sm text-success">
+      <div className="rounded-xl border border-success/40 bg-success/10 p-4 text-sm text-success">
         Payment confirmed — {activePack?.label} added to your balance.
         <button type="button" onClick={reset} className="ml-3 cursor-pointer underline">
           Buy more
@@ -105,25 +105,25 @@ export function CryptoBuy() {
 
   if (phase === 'awaiting' && url) {
     return (
-      <div className="border border-line bg-surface p-4">
+      <div className="card rounded-xl p-4">
         <p className="text-sm text-content">
-          Pay <span className="font-semibold text-accent">{activePack?.usdc} USDC</span> on Solana
+          Pay <span className="font-semibold text-accent2-bright">{activePack?.usdc} USDC</span> on Solana
           to get {activePack?.label}.
         </p>
         <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row">
-          <div className="bg-white p-3">
+          <div className="rounded-xl bg-white p-3">
             <QRCode value={url} size={160} />
           </div>
           <div className="text-xs text-content-muted">
             <p>Scan with a Solana wallet (Phantom, Solflare), or:</p>
             <a
               href={url}
-              className="mt-2 inline-block cursor-pointer bg-accent px-3 py-1.5 text-bg transition hover:bg-accent-bright"
+              className="mt-2 inline-block cursor-pointer rounded-lg bg-brand-gradient px-3 py-1.5 font-semibold text-accent-fg shadow-sm transition hover:shadow-glow"
             >
               Open in wallet
             </a>
             <p className="mt-3 flex items-center gap-2 text-content-faint">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent" />
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent2" />
               Waiting for payment… (auto-detects on-chain)
             </p>
             <p className="mt-1 font-mono text-[10px] text-content-faint break-all">ref: {reference.slice(0, 16)}…</p>
@@ -139,18 +139,18 @@ export function CryptoBuy() {
   return (
     <div>
       {error && (
-        <div className="mb-3 border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">{error}</div>
+        <div className="mb-3 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-xs text-danger">{error}</div>
       )}
       <div className="grid gap-3 sm:grid-cols-3">
         {PACKS.map((p) => (
-          <div key={p.id} className="border border-line bg-surface-2 p-4 text-center">
+          <div key={p.id} className="card card-hover rounded-xl border-accent2/20 p-4 text-center">
             <p className="font-mono text-sm text-content">{p.label}</p>
-            <p className="mt-1 text-2xl font-semibold text-accent">{p.usdc} USDC</p>
+            <p className="mt-1 text-2xl font-semibold text-accent2-bright">{p.usdc} USDC</p>
             <button
               type="button"
               disabled={phase === 'creating'}
               onClick={() => void start(p)}
-              className="mt-3 w-full cursor-pointer bg-accent px-3 py-1.5 text-xs font-medium text-bg transition hover:bg-accent-bright disabled:opacity-50"
+              className="mt-3 w-full cursor-pointer rounded-lg bg-brand-gradient px-3 py-1.5 text-xs font-semibold text-accent-fg shadow-sm transition hover:shadow-glow disabled:opacity-50 disabled:shadow-none"
             >
               {phase === 'creating' && activePack?.id === p.id ? 'Creating…' : 'Pay with USDC'}
             </button>
