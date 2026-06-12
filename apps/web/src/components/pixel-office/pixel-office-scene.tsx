@@ -54,6 +54,18 @@ const WALK_SPEED_FRAC = 0.06; // canvas-heights per second while roaming
 const REST_MIN = 1.5;         // seconds resting at a waypoint
 const REST_MAX = 4.0;
 
+/** Respect the OS reduced-motion setting (a11y, mandatory). When true we skip
+ * the materializing enter + halo easing and render final state immediately. */
+const PREFERS_REDUCED_MOTION =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** ease-out-quint — strong deceleration, no overshoot (Jakub: production curve). */
+function easeOutQuint(t: number): number {
+  return 1 - Math.pow(1 - t, 5);
+}
+
 function bubbleContent(state: AgentVisualState): string {
   switch (state) {
     case 'thinking': return '?';
@@ -106,6 +118,11 @@ interface AgentObj {
   state: AgentVisualState;
   appliedState?: AgentVisualState;
   phase: number;
+  // motion polish
+  haloAlpha: number;     // current (lerped) halo alpha
+  haloTarget: number;    // target halo alpha for current state
+  enterT: number;        // 0→1 materializing-enter progress
+  enterDelay: number;    // stagger before this agent's enter begins (s)
 }
 
 async function loadPixelTexture(url: string): Promise<Texture> {
@@ -159,6 +176,7 @@ export function PixelOfficeScene({ agents, width = 720, height = 420 }: PixelOff
       if (disposed) { app.destroy(true, { children: true }); return; }
 
       const root = new Container();
+      root.sortableChildren = true;
       app.stage.addChild(root);
 
       // ── Background ──
@@ -168,6 +186,7 @@ export function PixelOfficeScene({ agents, width = 720, height = 420 }: PixelOff
         const bg = new Sprite(bgTex);
         bg.width = width;
         bg.height = height;
+        bg.zIndex = -1;
         root.addChild(bg);
       } catch (err) {
         console.error('[pixel-office] background load failed', err);
@@ -226,7 +245,16 @@ export function PixelOfficeScene({ agents, width = 720, height = 420 }: PixelOff
           x: desk.x, y: desk.y, deskX: desk.x, deskY: desk.y,
           target: wp(ROAM_WAYPOINTS[i % ROAM_WAYPOINTS.length]!),
           restTimer: 0, mode: 'desk', state: 'idle', phase: (i * 1.7) % (Math.PI * 2),
+          haloAlpha: 0, haloTarget: 0,
+          enterT: PREFERS_REDUCED_MOTION ? 1 : 0,
+          enterDelay: PREFERS_REDUCED_MOTION ? 0 : i * 0.12,
         });
+        // Materializing enter: start slightly small + transparent (skipped when
+        // reduced-motion). 0.9 floor, never scale(0) — see creation-gotchas.
+        if (!PREFERS_REDUCED_MOTION) {
+          container.alpha = 0;
+          container.scale.set(0.92);
+        }
       }
 
       host.appendChild(app.canvas);
@@ -244,8 +272,12 @@ export function PixelOfficeScene({ agents, width = 720, height = 420 }: PixelOff
         o.appliedState = o.state;
         o.sprite.tint = tintFor(o.state);
         const style = agentStyleFor(o.ref);
+        // Draw the halo once at full color; animate its visibility via halo.alpha
+        // (lerped in the tick) so state changes fade smoothly, not snap.
         o.halo.clear();
-        o.halo.ellipse(0, 0, FRAME_W * 1.6, FRAME_H * 0.55).fill({ color: style.halo, alpha: HALO_ALPHA[o.state] });
+        o.halo.ellipse(0, 0, FRAME_W * 1.6, FRAME_H * 0.55).fill({ color: style.halo, alpha: 1 });
+        o.haloTarget = HALO_ALPHA[o.state];
+        if (PREFERS_REDUCED_MOTION) { o.haloAlpha = o.haloTarget; o.halo.alpha = o.haloTarget; }
         o.bubble.removeChildren();
         const glyph = bubbleContent(o.state);
         if (glyph) {
@@ -336,6 +368,31 @@ export function PixelOfficeScene({ agents, width = 720, height = 420 }: PixelOff
           const breathe = (o.mode === 'roam' && o.restTimer > 0) ? Math.sin(now / 520 + o.phase) * 0.6 : 0;
           o.container.x = o.x;
           o.container.y = o.y + breathe;
+          // Painter's algorithm: agents lower on screen (larger y) draw in
+          // front, so overlapping sprites never permanently bury each other.
+          o.container.zIndex = o.y;
+
+          // Halo: ease current alpha toward target so state changes fade in/out
+          // smoothly (Jakub: no snap). Frame-rate-independent lerp.
+          if (o.haloAlpha !== o.haloTarget) {
+            const k = 1 - Math.exp(-dt * 9);
+            o.haloAlpha += (o.haloTarget - o.haloAlpha) * k;
+            if (Math.abs(o.haloTarget - o.haloAlpha) < 0.004) o.haloAlpha = o.haloTarget;
+            o.halo.alpha = o.haloAlpha;
+          }
+
+          // Materializing enter: staggered fade + scale-up on first mount, using
+          // ease-out-quint. Skipped entirely under reduced-motion (enterT starts 1).
+          if (o.enterT < 1) {
+            if (o.enterDelay > 0) {
+              o.enterDelay -= dt;
+            } else {
+              o.enterT = Math.min(1, o.enterT + dt / 0.45); // 450ms enter
+              const e = easeOutQuint(o.enterT);
+              o.container.alpha = e;
+              o.container.scale.set(0.92 + 0.08 * e);
+            }
+          }
         }
       };
       app.ticker.add(tick);
