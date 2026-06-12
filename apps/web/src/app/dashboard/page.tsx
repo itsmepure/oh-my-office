@@ -50,7 +50,7 @@ export default async function DashboardPage() {
         <div className="mb-10">
           <p className="eyebrow text-[11px] text-content-muted">Agentic Workspace</p>
           <h1 className="mt-2 text-4xl font-semibold tracking-tight text-content">
-            Welcome back, <span className="text-gradient-brand">{session.user.name}</span>
+            Welcome back, <span className="text-accent">{session.user.name}</span>
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-content-muted">
             Your AI offices at a glance. Spin up a team from a template, then watch

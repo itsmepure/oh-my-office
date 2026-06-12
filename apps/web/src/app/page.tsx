@@ -9,17 +9,17 @@ const FEATURES = [
   {
     Icon: IconUsers,
     title: 'A team of AI agents',
-    body: 'Planner, Coder, Reviewer and more — each a configurable agent with its own role, prompt, tools and knowledge.',
+    body: 'Planner, Coder, Reviewer and more. Each a configurable agent with its own role, prompt, tools and knowledge.',
   },
   {
     Icon: IconTerminal,
     title: 'Give it a task, get real files',
-    body: 'Describe a goal. The office runs a deterministic pipeline and produces actual files you can download — not just chat.',
+    body: 'Describe a goal. The office runs a deterministic pipeline and produces actual files you can download, not just chat.',
   },
   {
     Icon: IconActivity,
     title: 'Watch it work, live',
-    body: 'A pixel-art office shows every agent thinking, calling tools and finishing — streamed in real time as it happens.',
+    body: 'A pixel-art office shows every agent thinking, calling tools and finishing, streamed in real time as it happens.',
   },
   {
     Icon: IconLayers,
@@ -42,7 +42,7 @@ export default function LandingPage() {
           </p>
           <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-content sm:text-5xl">
             Spin up an office of AI agents.{' '}
-            <span className="text-gradient-brand">Give them a task. Watch them build it.</span>
+            <span className="text-accent">Give them a task. Watch them build it.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-content-muted">
             OpenOffice is a workspace where a team of AI agents collaborate on a
@@ -102,12 +102,12 @@ export default function LandingPage() {
           <h2 className="eyebrow text-[11px] text-content-muted">How it works</h2>
           <ol className="mt-6 grid gap-4 sm:grid-cols-3">
             {[
-              { n: '01', t: 'Create an office', d: 'Pick a template — Dev Team, Content Team, Research Team — or build your own.' },
+              { n: '01', t: 'Create an office', d: 'Pick a template (Dev Team, Content Team, Research Team) or build your own.' },
               { n: '02', t: 'Run a task', d: 'Type a goal. Agents pick it up and work the pipeline, step by step.' },
               { n: '03', t: 'Download the result', d: 'Get the files and artifacts the agents produced, ready to use.' },
             ].map(({ n, t, d }) => (
               <li key={n} className="card card-hover rounded-xl p-6">
-                <span className="font-mono text-2xl font-bold text-gradient-brand">{n}</span>
+                <span className="font-mono text-2xl font-bold text-accent/70">{n}</span>
                 <h3 className="mt-2 font-semibold text-content">{t}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-content-muted">{d}</p>
               </li>

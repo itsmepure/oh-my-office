@@ -4,7 +4,7 @@ import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'OpenOffice — AI Agent Workspace',
+  title: 'OpenOffice · AI Agent Workspace',
   description: 'A hosted workspace where teams of AI agents collaborate in a living pixel office.',
 };
 

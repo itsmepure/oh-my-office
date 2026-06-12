@@ -14,7 +14,7 @@ export async function MarketingNav() {
             {'>'}
           </span>
           <span className="font-semibold tracking-tight text-content">
-            Open<span className="text-gradient-brand">Office</span>
+            Open<span className="text-accent">Office</span>
           </span>
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2">

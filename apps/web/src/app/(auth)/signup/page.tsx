@@ -64,7 +64,7 @@ export default function SignupPage() {
             {'>'}
           </span>
           <span className="font-mono text-sm font-semibold tracking-tight text-content">
-            Open<span className="text-gradient-brand">Office</span>
+            Open<span className="text-accent">Office</span>
           </span>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-content">Create account</h1>

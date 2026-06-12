@@ -5,7 +5,7 @@
 /*
  * Modern dark SaaS theme — Linear / Vercel lineage.
  *  - layered dark surfaces with real elevation (border + shadow steps)
- *  - multi-hue accent system: indigo-violet primary, amber + cyan support
+ *  - multi-hue accent system: warm yellow/gold primary, orange + cyan support
  *  - soft radius scale, subtle gradients, focused glow on key surfaces
  *  - depth is intentional: cards lift, primary actions carry a brand gradient
  * Token NAMES are stable (consumed by tailwind.config.ts) — values modernized.
@@ -67,12 +67,12 @@ body {
   background-image:
     radial-gradient(60rem 40rem at 50% -16rem, rgba(245,197,24,0.10), transparent 70%),
     radial-gradient(50rem 40rem at 100% 0%, rgba(251,146,60,0.06), transparent 60%);
-  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 /*
  * Global focus-visible ring — accessibility (CRITICAL). Keyboard users get a
- * clear 2px indigo ring on every interactive element; mouse clicks don't
+ * clear 2px accent ring on every interactive element; mouse clicks don't
  * trigger it (focus-visible only). Rounded to match the modern radius scale.
  */
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
@@ -113,17 +113,9 @@ body {
   color: var(--on-accent);
 }
 
-/* Gradient text — hero headline highlights. */
-.text-gradient-brand {
-  background-image: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
 /*
  * Hero glow — absolutely-positioned ambient brand light. Drop into a
- * `relative overflow-hidden` parent; it paints a soft indigo/violet bloom
+ * `relative overflow-hidden` parent; it paints a soft yellow/orange bloom
  * behind hero content and featured panels. Pointer-events none so it never
  * blocks interaction.
  */
