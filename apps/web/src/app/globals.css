@@ -22,15 +22,15 @@
   --border: #232734;        /* default 1px hairline */
   --border-strong: #333949; /* emphasized dividers / focus borders */
 
-  /* ── Primary accent: indigo → violet ── */
-  --accent: #6e6bf4;
-  --accent-bright: #8b89f8;
-  --accent-dim: #5451d6;
-  --on-accent: #ffffff;     /* foreground on filled accent surfaces */
+  /* ── Primary accent: warm yellow / gold ── */
+  --accent: #f5c518;
+  --accent-bright: #ffd84d;
+  --accent-dim: #d4a407;
+  --on-accent: #1a1404;     /* dark foreground on filled yellow surfaces (contrast) */
 
   /* ── Secondary / tertiary hues (variety, semantics) ── */
-  --accent-2: #e0a33e;      /* amber — highlights, credits, warmth */
-  --accent-2-bright: #f5bb4d;
+  --accent-2: #fb923c;      /* warm orange — credits, highlights, depth pairing */
+  --accent-2-bright: #fdba74;
   --accent-3: #3ec9d6;      /* cyan — info, links, live signals */
   --accent-3-bright: #5fdce8;
 
@@ -45,15 +45,15 @@
   --danger: #f0685a;
 
   /* ── Brand gradients ── */
-  --gradient-brand: linear-gradient(135deg, #7c7af6 0%, #a855f7 100%);
-  --gradient-brand-soft: linear-gradient(135deg, rgba(110,107,244,0.16) 0%, rgba(168,85,247,0.10) 100%);
+  --gradient-brand: linear-gradient(135deg, #f5c518 0%, #fb923c 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(245,197,24,0.16) 0%, rgba(251,146,60,0.10) 100%);
   --gradient-surface: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
 
   /* ── Elevation (soft, diffused — dark-mode tuned) ── */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
   --shadow-md: 0 4px 16px -4px rgba(0,0,0,0.5);
   --shadow-lg: 0 12px 40px -8px rgba(0,0,0,0.6);
-  --shadow-glow: 0 0 0 1px rgba(110,107,244,0.35), 0 8px 32px -8px rgba(110,107,244,0.45);
+  --shadow-glow: 0 0 0 1px rgba(245,197,24,0.35), 0 8px 32px -8px rgba(245,197,24,0.45);
 }
 
 html {
@@ -65,8 +65,8 @@ body {
   color: var(--text);
   /* Ambient brand wash anchored top — adds modern depth without noise. */
   background-image:
-    radial-gradient(60rem 40rem at 50% -16rem, rgba(110,107,244,0.10), transparent 70%),
-    radial-gradient(50rem 40rem at 100% 0%, rgba(168,85,247,0.06), transparent 60%);
+    radial-gradient(60rem 40rem at 50% -16rem, rgba(245,197,24,0.10), transparent 70%),
+    radial-gradient(50rem 40rem at 100% 0%, rgba(251,146,60,0.06), transparent 60%);
   background-attachment: fixed;
 }
 
@@ -103,7 +103,7 @@ body {
 
 /* Accent-lit card — for highlighted / "most popular" / featured surfaces. */
 .card-glow {
-  border-color: rgba(110,107,244,0.45);
+  border-color: rgba(245,197,24,0.45);
   box-shadow: var(--shadow-glow);
 }
 
@@ -132,8 +132,8 @@ body {
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(40rem 22rem at 15% -10%, rgba(110,107,244,0.20), transparent 60%),
-    radial-gradient(34rem 20rem at 85% 0%, rgba(168,85,247,0.14), transparent 60%);
+    radial-gradient(40rem 22rem at 15% -10%, rgba(245,197,24,0.20), transparent 60%),
+    radial-gradient(34rem 20rem at 85% 0%, rgba(251,146,60,0.14), transparent 60%);
 }
 
 /* Uppercase letter-spaced label — the repeating rhythm element. */
